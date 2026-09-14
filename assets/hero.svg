@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 420" role="img" aria-label="RimWorldForge loop: index, plan, generate, validate, build">
+  <defs>
+    <linearGradient id="rwsky" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#241c14"/>
+      <stop offset="1" stop-color="#120e0a"/>
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="420" rx="28" fill="url(#rwsky)"/>
+  <g fill="none" stroke="#e0a050" stroke-opacity=".14" stroke-width="1.2">
+    <path d="M80 210h1120"/>
+    <path d="M220 70l160 280M420 70l160 280M620 70l160 280M820 70l160 280M1020 70l160 280"/>
+    <path d="M140 70l160 280M-20 70l160 280"/>
+  </g>
+  <path fill="#e0a050" fill-opacity=".9" d="M118 92l46 26.5v53L118 198 72 171.5v-53z"/>
+  <path fill="#1c1610" d="M118 112l22 12.6v25.2L118 162.4 96 149.8v-25.2z"/>
+  <text x="182" y="132" fill="#f3e6d0" font-family="ui-sans-serif, system-ui, sans-serif" font-size="28" font-weight="700">RimWorldForge</text>
+  <text x="182" y="168" fill="#c4a57a" font-family="ui-sans-serif, system-ui, sans-serif" font-size="16">Inspect the installed 1.6 game before inventing XML.</text>
+  <g font-family="ui-sans-serif, system-ui, sans-serif" font-size="15" font-weight="600">
+    <rect x="72" y="248" width="200" height="64" rx="14" fill="#2b2118" stroke="#e0a050" stroke-opacity=".45"/>
+    <text x="172" y="276" text-anchor="middle" fill="#e0a050">INDEX</text>
+    <text x="172" y="296" text-anchor="middle" fill="#c4a57a" font-size="12" font-weight="500">vanilla + DLC + mods</text>
+    <path d="M284 280h36" stroke="#e0a050" stroke-width="2"/>
+    <rect x="332" y="248" width="200" height="64" rx="14" fill="#2b2118" stroke="#e0a050" stroke-opacity=".45"/>
+    <text x="432" y="276" text-anchor="middle" fill="#e0a050">PLAN</text>
+    <text x="432" y="296" text-anchor="middle" fill="#c4a57a" font-size="12" font-weight="500">typed JSON, not a DSL</text>
+    <path d="M544 280h36" stroke="#e0a050" stroke-width="2"/>
+    <rect x="592" y="248" width="200" height="64" rx="14" fill="#2b2118" stroke="#e0a050" stroke-opacity=".45"/>
+    <text x="692" y="276" text-anchor="middle" fill="#e0a050">GENERATE</text>
+    <text x="692" y="296" text-anchor="middle" fill="#c4a57a" font-size="12" font-weight="500">About / Defs / LoadFolders</text>
+    <path d="M804 280h36" stroke="#e0a050" stroke-width="2"/>
+    <rect x="852" y="248" width="200" height="64" rx="14" fill="#2b2118" stroke="#e0a050" stroke-opacity=".45"/>
+    <text x="952" y="276" text-anchor="middle" fill="#e0a050">VALIDATE</text>
+    <text x="952" y="296" text-anchor="middle" fill="#c4a57a" font-size="12" font-weight="500">syntax · refs · textures</text>
+    <path d="M1064 280h36" stroke="#e0a050" stroke-width="2"/>
+    <rect x="1112" y="248" width="96" height="64" rx="14" fill="#e0a050"/>
+    <text x="1160" y="286" text-anchor="middle" fill="#1c1610">BUILD</text>
+  </g>
+  <text x="72" y="362" fill="#8d7a64" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13">Static checks are not in-game proof. Load-test and visual-test remain human steps.</text>
+</svg>

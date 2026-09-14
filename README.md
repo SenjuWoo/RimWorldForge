@@ -1,4 +1,40 @@
+<p align="center">
+  <img src="assets/mark.svg" width="72" height="72" alt="RimWorldForge mark">
+</p>
+
+<div align="center">
+
 # RimWorldForge 0.2.1
+
+**Inspect the installed RimWorld 1.6 game before inventing XML.**
+
+A local-first AI modding workbench: deterministic Python tools plus a compact
+skill that teaches agents how to build real mods without loading a giant MCP
+schema every turn.
+
+<p>
+  <a href="https://github.com/ShugokiFable/RimWorldForge/actions/workflows/ci.yml"><img src="https://github.com/ShugokiFable/RimWorldForge/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-e0a050?labelColor=1c1610" alt="MIT License"></a>
+  <a href="https://github.com/ShugokiFable/RimWorldForge/releases/tag/v0.2.1"><img src="https://img.shields.io/badge/release-v0.2.1-e0a050?labelColor=1c1610" alt="v0.2.1"></a>
+  <img src="https://img.shields.io/badge/RimWorld-1.6-c4a57a?labelColor=1c1610" alt="RimWorld 1.6">
+  <img src="https://img.shields.io/badge/python-%3E%3D3.10-c4a57a?labelColor=1c1610" alt="Python 3.10+">
+</p>
+
+<p>
+  <a href="#install">Install</a>
+  ·
+  <a href="#the-forge-loop">Loop</a>
+  ·
+  <a href="#what-works-now">Status</a>
+  ·
+  <a href="CHANGELOG.md">Changelog</a>
+</p>
+
+</div>
+
+<p align="center">
+  <img src="assets/hero.svg" alt="RimWorldForge loop: index, plan, generate, validate, build" width="100%">
+</p>
 
 A local-first AI modding workbench for **RimWorld 1.6**. It is designed for agents that should create actual mods, inspect the game before inventing XML, validate what they wrote, package clean outputs, and report exactly what has and has not been proven.
 
@@ -263,6 +299,12 @@ Plans can declare assets:
 
 The bundled `examples/art/warden-concept.svg` is **concept/reference art only**, not a game-ready pawn texture. `docs/ART-PIPELINE.md` explains the contract.
 
+<p align="center">
+  <img src="examples/art/warden-concept.svg" alt="Warden concept reference art shipped with RimWorldForge" width="560">
+</p>
+
+<p align="center"><sub>Concept / reference only. Not a game-ready directional pawn texture.</sub></p>
+
 ## C# escalation
 
 ```text
@@ -336,3 +378,9 @@ The next high-value work is deliberately runtime-heavy rather than adding 80 mor
 - benchmark: weak local model, same mod prompt, baseline vs Forge
 
 The foundation is useful now, but 1.0 should mean **proved behavioral improvement and a full automated load-test loop**, not a larger README.
+
+## License
+
+[MIT](LICENSE)
+
+RimWorld is a trademark of Ludeon Studios. This project is unofficial.

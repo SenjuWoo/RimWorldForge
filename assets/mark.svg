@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="RimWorldForge">
+  <rect width="64" height="64" rx="14" fill="#e0a050"/>
+  <path fill="#1c1610" d="M32 7.5 53.5 20v24L32 56.5 10.5 44V20z"/>
+  <path fill="#e0a050" d="M32 16.5 45.6 24.4v15.8L32 48.1 18.4 40.2V24.4z"/>
+  <rect x="22.5" y="33" width="5" height="8.5" rx=".7" fill="#1c1610"/>
+  <rect x="29.2" y="28.5" width="6.2" height="13" rx=".7" fill="#1c1610"/>
+  <rect x="37" y="31.5" width="5.2" height="10" rx=".7" fill="#1c1610"/>
+  <circle cx="32" cy="22.5" r="2.4" fill="#1c1610"/>
+</svg>
