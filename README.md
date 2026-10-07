@@ -13,9 +13,9 @@ skill that teaches agents how to build real mods without loading a giant MCP
 schema every turn.
 
 <p>
-  <a href="https://github.com/ShugokiFable/RimWorldForge/actions/workflows/ci.yml"><img src="https://github.com/ShugokiFable/RimWorldForge/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://github.com/SenjuWoo/RimWorldForge/actions/workflows/ci.yml"><img src="https://github.com/SenjuWoo/RimWorldForge/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-e0a050?labelColor=1c1610" alt="MIT License"></a>
-  <a href="https://github.com/ShugokiFable/RimWorldForge/releases/tag/v0.2.1"><img src="https://img.shields.io/badge/release-v0.2.1-e0a050?labelColor=1c1610" alt="v0.2.1"></a>
+  <a href="https://github.com/SenjuWoo/RimWorldForge/releases/tag/v0.2.1"><img src="https://img.shields.io/badge/release-v0.2.1-e0a050?labelColor=1c1610" alt="v0.2.1"></a>
   <img src="https://img.shields.io/badge/RimWorld-1.6-c4a57a?labelColor=1c1610" alt="RimWorld 1.6">
   <img src="https://img.shields.io/badge/python-%3E%3D3.10-c4a57a?labelColor=1c1610" alt="Python 3.10+">
 </p>
