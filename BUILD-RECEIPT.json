@@ -4,48 +4,48 @@
   "files": [
     {
       "path": ".github/dependabot.yml",
-      "bytes": 141,
-      "sha256": "4ef2b94676d2036078193a9cb6bc4e130ebee2730bbfc039161baa1b55d53e92"
+      "bytes": 134,
+      "sha256": "7080f5c3f79770d239ef5fd62e799df288c72419260f9ad3aad6d4cac214767b"
     },
     {
       "path": ".github/workflows/ci.yml",
-      "bytes": 472,
-      "sha256": "72ca63bba51cf096ae43f2a4a31e09056c0450e87b9e22192e9172f1ed8deb65"
+      "bytes": 446,
+      "sha256": "40739fc42ae83c5ae8ee9b0fec9634564bd49eedb6f8fbcb73dab7a80e42cfb4"
     },
     {
       "path": ".gitignore",
-      "bytes": 106,
-      "sha256": "6ec71a41286ef9fa91e365b09a1d54281699ded558d32ffefee6fc5160a0817b"
+      "bytes": 97,
+      "sha256": "3ead9c24a20396befb314b407b4d79b365fa75386118038c1a624f55a1694a2d"
     },
     {
       "path": "assets/hero.svg",
-      "bytes": 3126,
-      "sha256": "bd2459c2a486a7560703e982df19f387d3eb73f10057d69bf6fdc657af086c0c"
+      "bytes": 3087,
+      "sha256": "a724f9230ef6b4b840e1f474a0643003ec00162a43c4839e599149da35f48a15"
     },
     {
       "path": "assets/mark.svg",
-      "bytes": 589,
-      "sha256": "98faf541c7cac4e55c4240f52a73f0bf8a8aef229bf58e217e5c2bff5da679b4"
+      "bytes": 580,
+      "sha256": "59f3adafd267a20b51abbe1a5ec8f51aaf771c72565bfc96553c5aca7c467f30"
     },
     {
       "path": "CHANGELOG.md",
-      "bytes": 3978,
-      "sha256": "1b1d15570faf78aca7ca312874398f638f81e2e3e5b0f407a3aa0346932056e4"
+      "bytes": 3904,
+      "sha256": "46e159bee9b4fe1bd912b774af1ea37d5fad2e2c067b3029ef00c9a6e183e237"
     },
     {
       "path": "CODE_OF_CONDUCT.md",
-      "bytes": 2409,
-      "sha256": "377e9a426cab6d62970159a89101b4a47fec08e5a85adcef5c7ef23644d44fb0"
+      "bytes": 2365,
+      "sha256": "3e8647c973e99a206051155be179a69afcaf692701d227f0bbb9937fd3ac6386"
     },
     {
       "path": "CONTRIBUTING.md",
-      "bytes": 1347,
-      "sha256": "fad84ed2d1484b2deb6d35c31fc41c0c43afb41e6a8b094f7785328e13202057"
+      "bytes": 1318,
+      "sha256": "2d9186a55e73350191c8cb4399e48ee400d900ee9e722e65f690869ed02ed57d"
     },
     {
       "path": "docs/AGENT-WORKFLOW.md",
-      "bytes": 2927,
-      "sha256": "e532be24e04dd75c3166cdc06daaa6dd10f5824db9f2460c7de1175ca0b9b1d1"
+      "bytes": 2855,
+      "sha256": "9d485f18625537b7d88ff317f150f2f6c0232028916b5da0756350c893965735"
     },
     {
       "path": "docs/ARCHITECTURE.md",
@@ -54,8 +54,8 @@
     },
     {
       "path": "docs/ART-PIPELINE.md",
-      "bytes": 3545,
-      "sha256": "e1641fb870d6abde9f80912ea25cb671cf642d86f72c6bf40b66047419b71312"
+      "bytes": 3453,
+      "sha256": "92bbf474404aee5eaf24080e761d2e91aa45a16608e4a0443bdec59e3fc1a026"
     },
     {
       "path": "docs/CONTENT-RECIPES.md",
@@ -64,8 +64,8 @@
     },
     {
       "path": "docs/EXTENDING.md",
-      "bytes": 2561,
-      "sha256": "55902539ca3eef8206114cdd8a96f79d71d304c8bf43103b4974beb0460e9b79"
+      "bytes": 2478,
+      "sha256": "39729706b95a24e7275bde4480de73c2fdcb75698827eb24294b0f96ff9c357b"
     },
     {
       "path": "docs/MODDING-GUIDE.md",
@@ -84,23 +84,23 @@
     },
     {
       "path": "examples/art/warden-concept.svg",
-      "bytes": 1693,
-      "sha256": "a2d10b88f140c827b1fbec2d859633f98e3d9820b374fa79df780c239cd66af8"
+      "bytes": 1671,
+      "sha256": "ef2fdadb11c84cb92a542e935bb6fcaedb8e13f7b9d1e8172907b5e0ed33a2ed"
     },
     {
       "path": "examples/shark-xenotype.plan.json",
-      "bytes": 1230,
-      "sha256": "25f4476de12abfb7d3b5bd5e5cc075dcaff213bbffcc0e48afb1f565e310a06d"
+      "bytes": 1184,
+      "sha256": "6c2956f5c49a8c03ccf821e02a8fafa93bf34e89e7a56e8dc9f9c3c5e48f512a"
     },
     {
       "path": "examples/warden-mech.plan.json",
-      "bytes": 2632,
-      "sha256": "58c51332863bd29be1e3602aa48c6594931f907832b4f14e19d9dea01d671337"
+      "bytes": 2539,
+      "sha256": "544fe9010d049f5137324ac16d341ed172509ab5a764bf206c5ec11478568a57"
     },
     {
       "path": "Install.ps1",
-      "bytes": 10043,
-      "sha256": "36d26478dda8f627051f548f1be7509d6f6adb0a9164f4d10dea51ee33e2e01e"
+      "bytes": 9845,
+      "sha256": "bb451c18319860d75de9942529c9b37c985bcfe2c1fb8a9c4ccd83d37ac8445c"
     },
     {
       "path": "knowledge/SOURCES.md",
@@ -109,8 +109,8 @@
     },
     {
       "path": "LICENSE",
-      "bytes": 1104,
-      "sha256": "9f2406be3c68d9781eef41a3155d7c14f6e41d7e35d7538ccd00e1eec022f604"
+      "bytes": 1083,
+      "sha256": "319025fb971b83892bf1aaa82b4342d4ae15b19d1f0ec09c70b772c4c93fd3b4"
     },
     {
       "path": "mcp_server/server.py",
@@ -124,18 +124,18 @@
     },
     {
       "path": "README.md",
-      "bytes": 16509,
-      "sha256": "977617e15b24332e49181694d9140914e4c254eefe604194a571734cfdd3e2c0"
+      "bytes": 16112,
+      "sha256": "03b213e5ba90b095d73a04e96b072d6a7873dc14f97d3627362d704b3b6209b7"
     },
     {
       "path": "schemas/project-plan.schema.json",
-      "bytes": 2818,
-      "sha256": "0c18ca2794d727467c7ca0c94745542eb62dca9999d2cbd535cf3b2ab6f24642"
+      "bytes": 2694,
+      "sha256": "8890d917a3571fdcf3f1f71543542f49143191a57e0fc04c739a7d8dbfd0464e"
     },
     {
       "path": "SECURITY.md",
-      "bytes": 1088,
-      "sha256": "f76c0b1bd4fcfbad2f4e4ef0e2e13a2dab8c9c7c9607a3dacd4472795f25385a"
+      "bytes": 1066,
+      "sha256": "5304adbefb69b05634aceb0dbc818ae5923322b34a769ab5ee7112faa8c3de63"
     },
     {
       "path": "skills/rimworld-forge/SKILL.md",
@@ -219,13 +219,13 @@
     },
     {
       "path": "START-HERE.bat",
-      "bytes": 254,
-      "sha256": "61ee57e0c60bf826bc24993dc6eeb9131563432fc12f9a96da97e380d7d62fc8"
+      "bytes": 245,
+      "sha256": "94be487634eca373402b2fad2861f6af3091506d0b09ce9d731fa7a957a57ab7"
     },
     {
       "path": "tests/run_tests.py",
-      "bytes": 394,
-      "sha256": "04289d5479f3ba8e1f21c6d0c2e582be1409dac18cf2b2103f057d9528589087"
+      "bytes": 380,
+      "sha256": "7e9ccbc0142c2fe22afbc5b1f434dd8a38cd712e792d18f81a0bb8da3f7d2cd7"
     },
     {
       "path": "tests/test_rwforge.py",
@@ -234,8 +234,8 @@
     },
     {
       "path": "Uninstall.ps1",
-      "bytes": 1488,
-      "sha256": "4fdd199a25a0b3fbb05d74ed9c8406219292fc58391da4f8339de79b51506af8"
+      "bytes": 1451,
+      "sha256": "130055f07276f5b25f5e2edab72472914d89d13ddca0877d14ae9111c98b4c9e"
     },
     {
       "path": "VERSION.txt",
