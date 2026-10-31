@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "rimworldforge"
-version = "0.2.1"
-description = "Local-first AI modding workbench for RimWorld 1.6"
+version = "0.3.0"
+description = "Local-first AI modding workbench for RimWorld 1.6 and 1.7"
 readme = "README.md"
 requires-python = ">=3.10"
 authors = [{name = "RimWorldForge contributors"}]

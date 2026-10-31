@@ -18,13 +18,16 @@ os.environ.setdefault("RIMWORLD_FORGE_OFFLINE", "1")
 
 from rwforge.assets import emit_prompts
 from rwforge.blueprints import blueprint_from_def
-from rwforge.builder import build_project
+from rwforge.builder import build_project, rollback_stage, stage_project
+from rwforge.csharp import scaffold as csharp_scaffold
+from rwforge.discovery import player_log_candidates
 from rwforge.generator import apply_plan, validate_plan
 from rwforge.indexer import build_index, inspect_def, search_index
-from rwforge.logs import analyze_log
+from rwforge.logs import analyze_log, redact_text
 from rwforge.mods import scan_mods
 from rwforge.project import new_project
 from rwforge.validator import validate_workspace
+from rwforge.versions import active_package_ids, normalize_version
 
 
 class ForgeTests(unittest.TestCase):
@@ -201,6 +204,238 @@ class ForgeTests(unittest.TestCase):
             self.assertEqual(storm["line"], 3)  # the [Ref X] dup line is the repeated one
             self.assertGreater(result["counts"]["duplicate_stack_ref"], 1000)
             self.assertTrue(any("FIRST block" in n for n in result["notes"]))
+
+
+def _fake_game(root: Path, version: str = "1.6") -> Path:
+    """Minimal installed-game tree: Core Defs, Version.txt, managed DLLs, Mods."""
+    (root / "Data" / "Core" / "Defs").mkdir(parents=True, exist_ok=True)
+    (root / "Version.txt").write_text(version, encoding="utf-8")
+    managed = root / "RimWorldWin64_Data" / "Managed"
+    managed.mkdir(parents=True, exist_ok=True)
+    for name in ("Assembly-CSharp.dll", "UnityEngine.dll", "UnityEngine.CoreModule.dll", "UnityStubs.dll", "Waylith.dll"):
+        (managed / name).write_bytes(b"MZ")
+    (root / "Mods").mkdir(exist_ok=True)
+    return root
+
+
+class VersionAndLogTests(unittest.TestCase):
+    def test_normalize_version(self):
+        self.assertEqual(normalize_version("1.7.2600 rev123"), "1.7")
+        self.assertEqual(normalize_version("1.6.4850"), "1.6")
+        self.assertIsNone(normalize_version("unknown"))
+
+    def test_player_log_candidates_prefer_17_logs_folder(self):
+        paths = [str(p).replace("\\", "/") for p in player_log_candidates()]
+        self.assertTrue(any(p.endswith("Logs/Player.log") for p in paths))
+        self.assertGreaterEqual(len(paths), 2)
+
+    def test_empty_modsconfig_is_resolved_not_missing(self):
+        with tempfile.TemporaryDirectory() as td:
+            config = Path(td) / "ModsConfig.xml"
+            config.write_text("<ModsConfigData><activeMods/></ModsConfigData>", encoding="utf-8")
+            os.environ["RWFORGE_MODS_CONFIG"] = str(config)
+            try:
+                self.assertEqual(active_package_ids(), set())
+            finally:
+                os.environ.pop("RWFORGE_MODS_CONFIG", None)
+
+    def test_index_uses_active_version_folder_only(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = _fake_game(Path(td) / "RimWorld", "1.7.2600")
+            mod = root / "Mods" / "Versioned"
+            for sub, name in (("1.6/Defs", "Test_16"), ("1.7/Defs", "Test_17"), ("Common/Defs", "Test_Common"), ("Defs", "Test_Root")):
+                d = mod / sub
+                d.mkdir(parents=True)
+                (d / "D.xml").write_text(f"<Defs><ThingDef><defName>{name}</defName></ThingDef></Defs>", encoding="utf-8")
+            index = Path(td) / "i.json"
+            build_index(root, include_mods=root / "Mods", output=index, active_version="1.7")
+            names = {r["def_name"] for r in json.loads(index.read_text(encoding="utf-8"))["records"]}
+            self.assertIn("Test_17", names)
+            self.assertIn("Test_Common", names)
+            self.assertIn("Test_Root", names)
+            self.assertNotIn("Test_16", names)
+
+    def test_loadfolders_conditions_follow_modsconfig(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = _fake_game(Path(td) / "RimWorld", "1.7.2600")
+            mod = root / "Mods" / "Conditional"
+            (mod / "Defs").mkdir(parents=True)
+            (mod / "Defs" / "Base.xml").write_text("<Defs><ThingDef><defName>Test_Base</defName></ThingDef></Defs>", encoding="utf-8")
+            for sub, name in (("1.7/Defs", "Test_17"), ("Optional/Defs", "Test_Optional"), ("Both/Defs", "Test_Both")):
+                d = mod / sub
+                d.mkdir(parents=True)
+                (d / "D.xml").write_text(f"<Defs><ThingDef><defName>{name}</defName></ThingDef></Defs>", encoding="utf-8")
+            (mod / "LoadFolders.xml").write_text(
+                "<loadFolders><v1.7><li>/</li><li>1.7</li>"
+                '<li IfModActive="test.pack">Optional</li>'
+                '<li IfModActiveAll="test.pack,other.mod">Both</li>'
+                "</v1.7></loadFolders>",
+                encoding="utf-8",
+            )
+            config = Path(td) / "ModsConfig.xml"
+            config.write_text("<ModsConfigData><activeMods><li>test.pack</li></activeMods></ModsConfigData>", encoding="utf-8")
+            os.environ["RWFORGE_MODS_CONFIG"] = str(config)
+            try:
+                index = Path(td) / "i.json"
+                build_index(root, include_mods=root / "Mods", output=index, active_version="1.7")
+                names = {r["def_name"] for r in json.loads(index.read_text(encoding="utf-8"))["records"]}
+                self.assertIn("Test_Optional", names)
+                self.assertNotIn("Test_Both", names)
+            finally:
+                os.environ.pop("RWFORGE_MODS_CONFIG", None)
+
+    def test_loadfolders_unresolved_conditions_are_reported(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = _fake_game(Path(td) / "RimWorld", "1.7.2600")
+            mod = root / "Mods" / "Conditional"
+            (mod / "1.7" / "Defs").mkdir(parents=True)
+            (mod / "1.7" / "Defs" / "D.xml").write_text("<Defs><ThingDef><defName>Test_17</defName></ThingDef></Defs>", encoding="utf-8")
+            (mod / "Optional" / "Defs").mkdir(parents=True)
+            (mod / "Optional" / "Defs" / "O.xml").write_text("<Defs><ThingDef><defName>Test_Optional</defName></ThingDef></Defs>", encoding="utf-8")
+            (mod / "LoadFolders.xml").write_text(
+                '<loadFolders><v1.7><li>1.7</li><li IfModActive="test.pack">Optional</li></v1.7></loadFolders>',
+                encoding="utf-8",
+            )
+            os.environ["RWFORGE_MODS_CONFIG"] = str(Path(td) / "missing.xml")
+            try:
+                index = Path(td) / "i.json"
+                result = build_index(root, include_mods=root / "Mods", output=index, active_version="1.7")
+                data = json.loads(index.read_text(encoding="utf-8"))
+                names = {r["def_name"] for r in data["records"]}
+                self.assertIn("Test_Optional", names)
+                self.assertTrue(any(w["code"] == "loadfolders.conditions_unresolved" for w in data["warnings"]))
+            finally:
+                os.environ.pop("RWFORGE_MODS_CONFIG", None)
+
+    def test_loadfolder_collision_is_reported(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = _fake_game(Path(td) / "RimWorld", "1.7.2600")
+            mod = root / "Mods" / "Collision"
+            for sub in ("Defs", "1.7/Defs"):
+                d = mod / sub
+                d.mkdir(parents=True)
+                (d / "Same.xml").write_text("<Defs><ThingDef><defName>Test_Same</defName></ThingDef></Defs>", encoding="utf-8")
+            (mod / "LoadFolders.xml").write_text("<loadFolders><v1.7><li>/</li><li>1.7</li></v1.7></loadFolders>", encoding="utf-8")
+            index = Path(td) / "i.json"
+            build_index(root, include_mods=root / "Mods", output=index, active_version="1.7")
+            data = json.loads(index.read_text(encoding="utf-8"))
+            self.assertTrue(any(w["code"] == "loadfolder.collision" for w in data["warnings"]))
+
+    def test_inspect_reports_parent_chain(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = _fake_game(Path(td) / "RimWorld", "1.6.4850")
+            defs = root / "Data" / "Core" / "Defs"
+            (defs / "Base.xml").write_text(
+                '<Defs><ThingDef Name="BaseThing" Abstract="True"><defName>BaseThing</defName><statBases><MarketValue>10</MarketValue></statBases></ThingDef>'
+                '<ThingDef ParentName="BaseThing"><defName>ChildThing</defName></ThingDef></Defs>',
+                encoding="utf-8",
+            )
+            index = Path(td) / "i.json"
+            build_index(root, output=index)
+            record = inspect_def("ChildThing", index)
+            self.assertEqual(record["parent_chain"][0]["name"], "BaseThing")
+            self.assertTrue(record["parent_chain"][0]["abstract"])
+
+    def test_log_demangles_harmony_wrapper_and_phase(self):
+        with tempfile.TemporaryDirectory() as td:
+            log = Path(td) / "Player.log"
+            log.write_text(
+                "(wrapper dynamic-method) MonoMod.Utils.DynamicMethodDefinition:Verse.LoadedModManager.ParseAndProcessXML_Patch7\n"
+                'Verse.PatchOperationReplace(xpath="Defs/ThingDef[defName=\\"Nope\\"]/statBases"): Failed to find a node with the given xpath\n',
+                encoding="utf-8",
+            )
+            result = analyze_log(log)
+            self.assertGreaterEqual(result["phases"].get("xpath_patching", 0), 1)
+            self.assertTrue(any("Verse.LoadedModManager.ParseAndProcessXML" in (h.get("harmony_methods") or []) for h in result["hits"]))
+
+    def test_log_reads_harmony_log_beside_player(self):
+        with tempfile.TemporaryDirectory() as td:
+            log = Path(td) / "Player.log"
+            log.write_text("clean\n", encoding="utf-8")
+            harmony = Path(td) / "harmony.log.txt"
+            harmony.write_text("Harmony patch failed: Patching exception in Some.Mod.Prefix\n", encoding="utf-8")
+            result = analyze_log(log)
+            self.assertEqual(Path(result["harmony_log"]), harmony)
+            self.assertTrue(any(h["source"] == "harmony.log.txt" for h in result["hits"]))
+
+    def test_log_redaction(self):
+        text = r"at C:\Users\alice\AppData\Local\RimWorld (steam 76561198000000000) 192.168.1.5 alice@example.com"
+        redacted = redact_text(text)
+        self.assertIn("%USERPROFILE%", redacted)
+        self.assertIn("<steamid>", redacted)
+        self.assertIn("<ip>", redacted)
+        self.assertIn("<email>", redacted)
+        self.assertNotIn("alice@example.com", redacted)
+
+    def test_stage_backup_manifest_and_rollback(self):
+        with tempfile.TemporaryDirectory() as td:
+            game = _fake_game(Path(td) / "RimWorld", "1.6.4850")
+            ws = Path(td) / "Demo"
+            new_project("Demo Mod", "tester.demo", workspace=ws)
+            plan = {"schema": 1, "mod": {"name": "Demo Mod", "packageId": "tester.demo", "supportedVersions": ["1.6"]},
+                    "defs": [{"type": "ThingDef", "fields": {"defName": "Tester_DemoThing"}}]}
+            plan_path = ws / "plans" / "p.json"
+            plan_path.write_text(json.dumps(plan), encoding="utf-8")
+            apply_plan(ws, plan_path)
+            build_project(ws)
+            target = game / "Mods" / "Demo-Mod"
+            target.mkdir(parents=True)
+            (target / "user-notes.txt").write_text("keep me", encoding="utf-8")
+            staged = stage_project(ws, game, approve=True)
+            self.assertTrue(staged["ok"])
+            self.assertIsNotNone(staged["backup"])
+            self.assertTrue((Path(staged["backup"]) / "user-notes.txt").is_file())
+            self.assertTrue((target / ".rwforge-manifest.json").is_file())
+            self.assertTrue(any(c["path"] == "user-notes.txt" for c in staged["unowned_conflicts"]))
+            rollback_stage(ws, game)
+            self.assertTrue((target / "user-notes.txt").is_file())
+
+    def test_csharp_scaffold_targets_17(self):
+        with tempfile.TemporaryDirectory() as td:
+            game = _fake_game(Path(td) / "RimWorld", "1.7.2600")
+            ws = Path(td) / "Code"
+            new_project("Code Mod", "tester.code", workspace=ws, versions=["1.7"])
+            result = csharp_scaffold(ws, game, target_version="1.7")
+            csproj = Path(result["project"]) / f"{result['assembly']}.csproj"
+            text = csproj.read_text(encoding="utf-8")
+            self.assertIn("net10.0", text)
+            self.assertIn("Waylith.dll", text)
+            self.assertNotIn("UnityEngine.CoreModule", text)
+            self.assertTrue(result["assemblies_dir"].replace("\\", "/").endswith("source/1.7/Assemblies"))
+            self.assertEqual(json.loads((ws / "forge.json").read_text(encoding="utf-8"))["targetRimWorld"], "1.7")
+
+    def test_csharp_scaffold_16_keeps_net472(self):
+        with tempfile.TemporaryDirectory() as td:
+            game = _fake_game(Path(td) / "RimWorld", "1.6.4850")
+            ws = Path(td) / "Code"
+            new_project("Code Mod", "tester.code", workspace=ws)
+            result = csharp_scaffold(ws, game, target_version="1.6")
+            text = (Path(result["project"]) / f"{result['assembly']}.csproj").read_text(encoding="utf-8")
+            self.assertIn("net472", text)
+            self.assertIn("UnityEngine.CoreModule", text)
+
+    def test_about_accepts_17_only(self):
+        with tempfile.TemporaryDirectory() as td:
+            ws = Path(td) / "Demo"
+            new_project("Demo Mod", "tester.demo", workspace=ws, versions=["1.7"])
+            result = validate_workspace(ws)
+            self.assertTrue(result["ok"], result)
+            self.assertFalse(any(w["code"] == "about.version" for w in result["warnings"]))
+
+    def test_plan_accepts_17_only(self):
+        plan = {"schema": 1, "mod": {"name": "X", "packageId": "a.b", "supportedVersions": ["1.7"]}, "defs": []}
+        self.assertTrue(validate_plan(plan)["ok"])
+
+    def test_loadfolders_validator_flags_missing_folder(self):
+        with tempfile.TemporaryDirectory() as td:
+            ws = Path(td) / "Demo"
+            new_project("Demo Mod", "tester.demo", workspace=ws, versions=["1.7"])
+            (ws / "source" / "LoadFolders.xml").write_text(
+                "<loadFolders><v1.7><li>MissingFolder</li></v1.7></loadFolders>", encoding="utf-8"
+            )
+            result = validate_workspace(ws)
+            self.assertTrue(any(w["code"] == "loadfolders.missing" for w in result["warnings"]))
+
 
 
 if __name__ == "__main__":

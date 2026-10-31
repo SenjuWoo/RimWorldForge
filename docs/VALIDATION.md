@@ -1,5 +1,12 @@
 # Validation and evidence
 
+## RimWorld 1.6 and 1.7
+
+The validator accepts either `1.6` or `1.7` in `supportedVersions`. It checks that
+`LoadFolders.xml` version blocks point at folders that exist and that every
+declared version has a block. It does not claim that a 1.7 load succeeds just
+because the XML parses.
+
 ## Static validation is intentionally not a game emulator
 
 RimWorld loads XML through reflection-heavy game code, resolves cross-references after Def loading, and many semantic problems only appear when content is instantiated. Static analysis can catch a large class of failures, but it cannot honestly prove runtime correctness.
@@ -33,3 +40,7 @@ Warnings are used where the validator has a useful suspicion but insufficient ty
 - a non-abstract Def lacks a defName
 
 A future reflection index can promote some warnings to errors when it can prove the field type from the installed assemblies.
+
+Forge deliberately does not emulate `Verse.XmlInheritance` merging. `inspect`
+returns the raw XML and the ParentName chain; an agent must read the parent
+records for inherited fields instead of assuming a merged DOM.

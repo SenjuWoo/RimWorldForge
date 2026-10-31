@@ -4,6 +4,7 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 
 from .util import PACKAGE_ID_RE, ensure_dir, safe_slug, write_json
+from .versions import SUPPORTED_VERSIONS
 
 
 def _indent(tree: ET.ElementTree) -> None:
@@ -28,9 +29,20 @@ def write_about(path: Path, name: str, package_id: str, author: str, description
     tree.write(path, encoding="utf-8", xml_declaration=True)
 
 
-def new_project(name: str, package_id: str, author: str = "", description: str = "Generated with RimWorldForge.", workspace: Path | None = None) -> dict:
+def new_project(
+    name: str,
+    package_id: str,
+    author: str = "",
+    description: str = "Generated with RimWorldForge.",
+    workspace: Path | None = None,
+    versions: list[str] | None = None,
+) -> dict:
     if not PACKAGE_ID_RE.match(package_id) or "." not in package_id:
         raise ValueError("packageId should be globally distinctive and contain a dot, e.g. author.modname")
+    versions = versions or ["1.6"]
+    unknown = [v for v in versions if v not in SUPPORTED_VERSIONS]
+    if unknown:
+        raise ValueError(f"Unsupported RimWorld version(s): {', '.join(unknown)}. Use {', '.join(SUPPORTED_VERSIONS)}")
     root = (workspace or (Path.cwd() / safe_slug(name))).expanduser().resolve()
     if root.exists() and any(root.iterdir()):
         raise FileExistsError(f"Workspace is not empty: {root}")
@@ -43,13 +55,13 @@ def new_project(name: str, package_id: str, author: str = "", description: str =
     ensure_dir(root / "reports")
     ensure_dir(root / "build")
     ensure_dir(root / "csharp")
-    write_about(source / "About" / "About.xml", name, package_id, author, description, ["1.6"])
+    write_about(source / "About" / "About.xml", name, package_id, author, description, versions)
     config = {
         "schema": 1,
         "name": name,
         "packageId": package_id,
         "author": author,
-        "targetRimWorld": "1.6",
+        "targetRimWorld": versions[0],
         "source": "source",
         "build": "build",
         "evidence": {

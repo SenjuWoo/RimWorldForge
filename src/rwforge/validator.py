@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from .util import DEF_NAME_RE, PACKAGE_ID_RE, read_json, write_json
+from .versions import SUPPORTED_VERSIONS
 
 REFERENCE_FIELDS = {
     "thingDef", "hediffDef", "pawnKind", "pawnKindDef", "recipeDef", "researchPrerequisite",
@@ -36,6 +37,7 @@ def validate_workspace(workspace: Path, vanilla_index: Path | None = None) -> di
     source = workspace / "source"
     problems: list[dict[str, Any]] = []
     stats = {"xml_files": 0, "defs": 0, "textures_referenced": 0}
+    versions: list[str] = []
     about_path = source / "About" / "About.xml"
     if not about_path.is_file():
         problems.append(_problem("error", "about.missing", "About/About.xml is required", str(about_path)))
@@ -53,8 +55,10 @@ def validate_workspace(workspace: Path, vanilla_index: Path | None = None) -> di
             if pid and (not PACKAGE_ID_RE.match(pid) or "." not in pid):
                 problems.append(_problem("error", "about.packageId_format", "packageId must be distinctive, dot-qualified, and use letters/numbers/._-", str(about_path)))
             versions = [((li.text or "").strip()) for li in root.findall("./supportedVersions/li")]
-            if "1.6" not in versions:
-                problems.append(_problem("warning", "about.version", "RimWorldForge foundation targets 1.6 but About.xml does not declare 1.6", str(about_path)))
+            if not any(v in SUPPORTED_VERSIONS for v in versions):
+                problems.append(_problem("warning", "about.version", f"About.xml declares no supported version Forge knows ({', '.join(SUPPORTED_VERSIONS)})", str(about_path)))
+            if not (source / "About" / "Preview.png").is_file():
+                problems.append(_problem("warning", "about.preview", "About/Preview.png is required by the game and Workshop", str(source / "About" / "Preview.png")))
         except ET.ParseError as exc:
             problems.append(_problem("error", "about.xml", str(exc), str(about_path)))
     known_defs: set[str] = set()
@@ -113,6 +117,24 @@ def validate_workspace(workspace: Path, vanilla_index: Path | None = None) -> di
                 problems.append(_problem("warning", "patch.root", "Patch XML normally uses <Patch> root", str(path)))
         except ET.ParseError as exc:
             problems.append(_problem("error", "patch.parse", str(exc), str(path)))
+    load_folders = source / "LoadFolders.xml"
+    if load_folders.is_file():
+        try:
+            lf_root = ET.parse(load_folders).getroot()
+            if lf_root.tag != "loadFolders":
+                problems.append(_problem("error", "loadfolders.root", "LoadFolders.xml root must be <loadFolders>", str(load_folders)))
+            declared_blocks = {node.tag.lstrip("vV") for node in lf_root}
+            for node in lf_root:
+                for li in node.findall("li"):
+                    text = (li.text or "").strip()
+                    relative = text.strip("./").strip("/")
+                    if relative and not (source / relative).is_dir():
+                        problems.append(_problem("warning", "loadfolders.missing", f"Load folder does not exist: {text}", str(load_folders)))
+            for version in versions:
+                if version in SUPPORTED_VERSIONS and version not in declared_blocks:
+                    problems.append(_problem("warning", "loadfolders.version", f"About.xml declares {version} but LoadFolders.xml has no v{version} block", str(load_folders)))
+        except ET.ParseError as exc:
+            problems.append(_problem("error", "loadfolders.parse", str(exc), str(load_folders)))
     assets_manifest = workspace / "plans" / "ASSETS-NEEDED.json"
     if assets_manifest.is_file():
         try:

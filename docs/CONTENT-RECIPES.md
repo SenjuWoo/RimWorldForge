@@ -1,6 +1,6 @@
 # Content recipes
 
-These are agent recipes, not frozen XML templates. RimWorld XML fields and framework details should be learned from the installed 1.6 game/framework before authoring.
+These are agent recipes, not frozen XML templates. RimWorld XML fields and framework details should be learned from the installed 1.6/1.7 game/framework before authoring.
 
 ## Named NPC / pawn archetype
 

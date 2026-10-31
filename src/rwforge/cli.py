@@ -2,13 +2,15 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
 from . import __version__
 from .assets import emit_prompts
 from .blueprints import blueprint_from_def
-from .builder import build_project, stage_project
+from .builder import build_project, rollback_stage, stage_project
 from .csharp import build as csharp_build, scaffold as csharp_scaffold
 from .discovery import discover_game, doctor, player_log_path
 from .generator import apply_plan, validate_plan
@@ -24,6 +26,24 @@ def emit(value, pretty: bool = True) -> None:
     print(json.dumps(value, indent=2 if pretty else None, ensure_ascii=False, sort_keys=True))
 
 
+def _debug_log(argv: list[str], result: dict) -> None:
+    """Opt-in local log; quiet unless RWFORGE_DEBUG=1. Never records file contents."""
+    if os.environ.get("RWFORGE_DEBUG") != "1":
+        return
+    try:
+        target = state_root() / "rwforge.log"
+        target.parent.mkdir(parents=True, exist_ok=True)
+        with target.open("a", encoding="utf-8") as handle:
+            handle.write(json.dumps({
+                "utc": datetime.now(timezone.utc).isoformat(),
+                "argv": argv,
+                "ok": result.get("ok"),
+                "error": result.get("error"),
+            }, sort_keys=True) + "\n")
+    except OSError:
+        pass
+
+
 def require_game(explicit: str | None) -> Path:
     root = discover_game(explicit)
     if not root:
@@ -37,6 +57,7 @@ def capabilities() -> dict:
         "version": __version__,
         "capabilities": {
             "game_discovery": "implemented",
+            "rimworld_16_17_layouts": "implemented",
             "vanilla_dlc_def_index": "implemented",
             "def_search_inspect": "implemented",
             "def_blueprint_from_installed_example": "implemented",
@@ -50,9 +71,13 @@ def capabilities() -> dict:
             "texture_presence_checks": "implemented",
             "deterministic_build_zip_receipt": "implemented",
             "player_log_analysis": "implemented",
-            "csharp_scaffold": "implemented",
+            "harmony_log_correlation": "implemented",
+            "log_redaction": "implemented_opt_in",
+            "csharp_scaffold": "implemented_16_17_version_aware",
             "csharp_compile": "implemented_external_approval_required",
             "stage_to_game_mods": "implemented_external_write_approval_required",
+            "stage_ownership_manifest": "implemented",
+            "stage_backup_rollback": "implemented",
             "runtime_launch_automation": "not_implemented",
             "runtime_spawn_test": "not_implemented",
             "visual_validation": "human_or_vision_required",
@@ -105,6 +130,7 @@ def parser() -> argparse.ArgumentParser:
     pn.add_argument("--author", default="")
     pn.add_argument("--description", default="Generated with RimWorldForge.")
     pn.add_argument("--workspace")
+    pn.add_argument("--rimworld-version", action="append", dest="rimworld_version", help="Supported RimWorld version (repeatable, default 1.6)")
 
     pv = sub.add_parser("plan-validate")
     pv.add_argument("plan")
@@ -133,16 +159,24 @@ def parser() -> argparse.ArgumentParser:
     la.add_argument("log", nargs="?")
     la.add_argument("--context", type=int, default=1)
     la.add_argument("--max-hits", type=int, default=200)
+    la.add_argument("--harmony-log", help="Harmony log path; defaults to harmony.log.txt beside Player.log")
+    la.add_argument("--redact", action="store_true", help="Redact local paths, Steam IDs, IPs and emails")
 
     cs = sub.add_parser("csharp-scaffold")
     cs.add_argument("workspace")
     cs.add_argument("--game")
     cs.add_argument("--namespace")
     cs.add_argument("--harmony-dll")
+    cs.add_argument("--version", dest="target_version", help="Target RimWorld version (1.6 or 1.7; defaults to forge.json)")
 
     cb = sub.add_parser("csharp-build")
     cb.add_argument("workspace")
     cb.add_argument("--approve", action="store_true")
+    cb.add_argument("--version", dest="target_version", help="Target RimWorld version (1.6 or 1.7)")
+
+    sr = sub.add_parser("stage-rollback")
+    sr.add_argument("workspace")
+    sr.add_argument("--game")
 
     return p
 
@@ -169,7 +203,11 @@ def main(argv: list[str] | None = None) -> int:
         elif args.command == "mods-scan":
             result = scan_mods(require_game(args.game))
         elif args.command == "project-new":
-            result = new_project(args.name, args.package_id, args.author, args.description, Path(args.workspace) if args.workspace else None)
+            result = new_project(
+                args.name, args.package_id, args.author, args.description,
+                Path(args.workspace) if args.workspace else None,
+                versions=args.rimworld_version,
+            )
         elif args.command == "plan-validate":
             result = validate_plan(read_json(Path(args.plan)))
         elif args.command == "generate":
@@ -183,17 +221,32 @@ def main(argv: list[str] | None = None) -> int:
         elif args.command == "art-prompts":
             result = emit_prompts(Path(args.workspace))
         elif args.command == "log-analyze":
-            result = analyze_log(Path(args.log) if args.log else player_log_path(), args.context, args.max_hits)
+            result = analyze_log(
+                Path(args.log) if args.log else player_log_path(),
+                args.context,
+                args.max_hits,
+                harmony_log=Path(args.harmony_log) if args.harmony_log else None,
+                redact=args.redact,
+            )
         elif args.command == "csharp-scaffold":
-            result = csharp_scaffold(Path(args.workspace), require_game(args.game), args.namespace, Path(args.harmony_dll) if args.harmony_dll else None)
+            result = csharp_scaffold(
+                Path(args.workspace), require_game(args.game), args.namespace,
+                Path(args.harmony_dll) if args.harmony_dll else None,
+                target_version=args.target_version,
+            )
         elif args.command == "csharp-build":
-            result = csharp_build(Path(args.workspace), args.approve)
+            result = csharp_build(Path(args.workspace), args.approve, target_version=args.target_version)
+        elif args.command == "stage-rollback":
+            result = rollback_stage(Path(args.workspace), require_game(args.game))
         else:
             raise RuntimeError(f"Unknown command: {args.command}")
+        _debug_log(sys.argv[1:], result)
         emit(result)
         return 0 if result.get("ok") else 2
     except (ValueError, FileNotFoundError, FileExistsError, json.JSONDecodeError) as exc:
-        emit({"ok": False, "error": str(exc), "error_type": type(exc).__name__})
+        failure = {"ok": False, "error": str(exc), "error_type": type(exc).__name__}
+        _debug_log(sys.argv[1:], failure)
+        emit(failure)
         return 2
     except KeyboardInterrupt:
         emit({"ok": False, "error": "interrupted"})

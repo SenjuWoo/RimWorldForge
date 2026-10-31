@@ -30,9 +30,9 @@ def schema(properties: dict[str, Any], required: list[str] | None = None) -> dic
 
 
 TOOLS = [
-    {"name": "rw_doctor", "description": "Detect RimWorld, DLCs, Managed assemblies, Mods folder and Player.log.", "inputSchema": schema({"game": {"type": "string"}})},
+    {"name": "rw_doctor", "description": "Detect RimWorld 1.6/1.7, DLCs, Managed assemblies, Mods folder, Player.log and harmony.log.txt.", "inputSchema": schema({"game": {"type": "string"}})},
     {"name": "rw_capabilities", "description": "Return honest implemented/unsupported capability matrix and evidence tiers.", "inputSchema": schema({})},
-    {"name": "rw_index", "description": "Build a searchable Def index from Core + installed DLC. By default auto-discovers mods: game Mods folder plus every Steam library Workshop root (override with RIMWORLD_WORKSHOP_ROOT/RIMWORLD_MODS_ROOT env or mods_root).", "inputSchema": schema({"game": {"type": "string"}, "mods_root": {"type": "string"}, "output": {"type": "string"}})},
+    {"name": "rw_index", "description": "Build a searchable Def index from Core + installed DLC, honoring 1.6/1.7 version folders and LoadFolders.xml. By default auto-discovers mods: game Mods folder plus every Steam library Workshop root.", "inputSchema": schema({"game": {"type": "string"}, "mods_root": {"type": "string"}, "output": {"type": "string"}, "version": {"type": "string", "enum": ["1.6", "1.7"]}})},
     {"name": "rw_def_search", "description": "Search the indexed vanilla/DLC Def corpus before inventing XML.", "inputSchema": schema({"query": {"type": "string"}, "def_type": {"type": "string"}, "index": {"type": "string"}, "limit": {"type": "integer", "minimum": 1, "maximum": 100}}, ["query"])},
     {"name": "rw_def_inspect", "description": "Inspect one indexed Def and return its source plus raw XML when available.", "inputSchema": schema({"def_name": {"type": "string"}, "index": {"type": "string"}}, ["def_name"])},
     {"name": "rw_project_new", "description": "Create a transactional RimWorld mod workspace outside the live game.", "inputSchema": schema({"name": {"type": "string"}, "package_id": {"type": "string"}, "author": {"type": "string"}, "description": {"type": "string"}, "workspace": {"type": "string"}}, ["name", "package_id"])},
@@ -40,7 +40,7 @@ TOOLS = [
     {"name": "rw_generate", "description": "Apply a validated generation plan to a Forge workspace: About.xml, Def XML, LoadFolders, asset manifest.", "inputSchema": schema({"workspace": {"type": "string"}, "plan": {"type": "string"}}, ["workspace", "plan"])},
     {"name": "rw_validate", "description": "Static-validate About.xml, Def/Patch XML, duplicate names, texture paths and conservative reference candidates.", "inputSchema": schema({"workspace": {"type": "string"}, "index": {"type": "string"}}, ["workspace"])},
     {"name": "rw_build", "description": "Build a clean mod folder + deterministic ZIP + SHA-256 receipt after validation.", "inputSchema": schema({"workspace": {"type": "string"}, "index": {"type": "string"}}, ["workspace"])},
-    {"name": "rw_log_analyze", "description": "Analyze a RimWorld Player.log for XML, cross-reference, assembly, Harmony, texture and exception failures.", "inputSchema": schema({"log": {"type": "string"}, "context": {"type": "integer"}, "max_hits": {"type": "integer"}}, ["log"])},
+    {"name": "rw_log_analyze", "description": "Analyze Player.log plus harmony.log.txt for XML inheritance, XPath, Harmony, texture and exception failures; optional PII redaction.", "inputSchema": schema({"log": {"type": "string"}, "context": {"type": "integer"}, "max_hits": {"type": "integer"}, "harmony_log": {"type": "string"}, "redact": {"type": "boolean"}}, ["log"])},
 ]
 
 
@@ -53,7 +53,7 @@ def call_tool(name: str, a: dict[str, Any]) -> dict[str, Any]:
         root = discover_game(a.get("game"))
         if not root:
             raise FileNotFoundError("RimWorld installation not found")
-        return build_index(root, Path(a["mods_root"]) if a.get("mods_root") else None, Path(a["output"]) if a.get("output") else None)
+        return build_index(root, Path(a["mods_root"]) if a.get("mods_root") else None, Path(a["output"]) if a.get("output") else None, active_version=a.get("version"))
     if name == "rw_def_search":
         return {"ok": True, "results": search_index(a["query"], a.get("def_type"), Path(a["index"]) if a.get("index") else None, int(a.get("limit", 20)))}
     if name == "rw_def_inspect":
@@ -70,7 +70,11 @@ def call_tool(name: str, a: dict[str, Any]) -> dict[str, Any]:
     if name == "rw_build":
         return build_project(Path(a["workspace"]), Path(a["index"]) if a.get("index") else None)
     if name == "rw_log_analyze":
-        return analyze_log(Path(a["log"]), int(a.get("context", 1)), int(a.get("max_hits", 200)))
+        return analyze_log(
+            Path(a["log"]), int(a.get("context", 1)), int(a.get("max_hits", 200)),
+            harmony_log=Path(a["harmony_log"]) if a.get("harmony_log") else None,
+            redact=bool(a.get("redact", False)),
+        )
     raise KeyError(name)
 
 
