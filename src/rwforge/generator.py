@@ -7,6 +7,7 @@ from typing import Any
 
 from .project import write_about
 from .util import DEF_NAME_RE, PACKAGE_ID_RE, ensure_dir, read_json, safe_slug, write_json
+from .versions import SUPPORTED_VERSIONS
 
 
 def validate_plan(plan: dict[str, Any]) -> dict[str, Any]:
@@ -27,8 +28,12 @@ def validate_plan(plan: dict[str, Any]) -> dict[str, Any]:
     versions = mod.get("supportedVersions", ["1.6"])
     if not isinstance(versions, list) or not all(isinstance(x, str) for x in versions):
         errors.append("mod.supportedVersions must be a string list")
-    elif "1.6" not in versions:
-        warnings.append("Foundation targets RimWorld 1.6; this plan does not declare 1.6")
+    elif not any(v in SUPPORTED_VERSIONS for v in versions):
+        errors.append(f"mod.supportedVersions must include one of: {', '.join(SUPPORTED_VERSIONS)}")
+    else:
+        unknown = [v for v in versions if v not in SUPPORTED_VERSIONS]
+        if unknown:
+            warnings.append(f"Unknown RimWorld version(s) in plan: {', '.join(unknown)}")
     defs = plan.get("defs", [])
     if not isinstance(defs, list):
         errors.append("plan.defs must be a list")

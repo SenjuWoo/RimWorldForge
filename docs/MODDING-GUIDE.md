@@ -18,7 +18,7 @@ Only `About/About.xml` is universally required, but content mods usually add Def
 
 ## About.xml
 
-For a 1.6-only development mod, generate a unique dot-qualified `packageId`, declare 1.6, and list dependencies explicitly when a framework is required. Do not declare older/newer support just to make warnings disappear.
+For a development mod, generate a unique dot-qualified `packageId`, declare only the RimWorld version(s) you actually test, and list dependencies explicitly when a framework is required. Do not declare older/newer support just to make warnings disappear.
 
 ## Defs
 
@@ -74,7 +74,7 @@ PatchOperations are preferable to copying and overriding vanilla Defs when chang
 
 ## LoadFolders.xml
 
-Use it when content should load conditionally by RimWorld version, DLC, or another mod. RimWorld 1.6 supports conditions including `IfModActive`, `IfModNotActive`, and `IfModActiveAll`. Keep paths case-correct for cross-platform compatibility.
+Use it when content should load conditionally by RimWorld version, DLC, or another mod. RimWorld 1.6/1.7 support conditions including `IfModActive`, `IfModNotActive`, and `IfModActiveAll` (AND; `IfModActive` is OR over a comma list). Keep paths case-correct for cross-platform compatibility.
 
 ## C#
 

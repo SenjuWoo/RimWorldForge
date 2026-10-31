@@ -16,7 +16,7 @@ RimWorldForge prefers installed game data over bundled prose. This file is a map
 ### RimWorld Wiki: Mod Folder Structure
 https://rimworldwiki.com/wiki/Modding_Tutorials/Mod_Folder_Structure
 
-Useful for recognized folders, About/Defs/Patches/Assemblies/Textures/Sounds/Languages, `LoadFolders.xml`, 1.6 conditional folders, and case-sensitive paths. It also explicitly recommends only declaring versions that were actually tested.
+Useful for recognized folders, About/Defs/Patches/Assemblies/Textures/Sounds/Languages, `LoadFolders.xml`, versioned folders, `IfModActive`/`IfModActiveAll`/`IfModNotActive`, and case-sensitive paths. It also explicitly recommends only declaring versions that were actually tested.
 
 ### RimWorld Wiki: About.xml
 https://rimworldwiki.com/wiki/Modding_Tutorials/About.xml
@@ -49,6 +49,19 @@ Useful for 1.6/Odyssey context.
 https://github.com/erdelf/AlienRaces
 
 `About/About.xml` currently declares 1.6 support. Its project description states that it can define custom humanoid races largely through XML and supports graphics/body addons, gender distribution, backstories, thoughts and race restrictions. Forge treats HAR as an optional dependency, never a vendored component.
+
+### RimWorld 1.7 and the Waylith engine (October 2026)
+
+https://ludeon.com/blog/2026/10/announcing-the-waylith-engine-and-update-1-7/
+https://rimworldwiki.com/wiki/Modding_Tutorials/RimWorld_1.7_Mod_Updates
+https://docs.google.com/document/d/e/2PACX-1vSykw5_DYaaw42nEznI9zmBZVT_Vgg2bxYq_v2XWvAsHC3QSKFuDK2OyiQ5WC9jvVRUcrjpFt7xLLF5/pub
+https://github.com/pardeike/HarmonyRimWorld
+
+1.7 moves the game to the Waylith engine and .NET 10. Mods compile against
+`Assembly-CSharp.dll`, `UnityStubs.dll` and `Waylith.dll`; Harmony 3 enforces
+injection type checks. `Player.log` moves to a `Logs/` subfolder and Harmony
+writes `harmony.log.txt` beside it. The update is on the unstable Steam branch
+as of October 2026; the main branch remains 1.6.
 
 ### Harmony
 https://github.com/pardeike/Harmony

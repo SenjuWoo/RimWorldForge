@@ -44,7 +44,7 @@ Capture:
 
 ### Ready signal
 
-Do not infer success from "process is still running after N seconds." Find a deterministic main-menu/log signal for the installed 1.6 build and test it against known-good and intentionally-broken mods.
+Do not infer success from "process is still running after N seconds." Find a deterministic main-menu/log signal for the installed 1.6/1.7 build and test it against known-good and intentionally-broken mods.
 
 ### Timeout and cleanup
 

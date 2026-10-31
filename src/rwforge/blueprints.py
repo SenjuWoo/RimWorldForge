@@ -57,7 +57,7 @@ def blueprint_from_def(def_name: str, new_def_name: str, output: Path, index_pat
             "name": mod_name,
             "packageId": package_id,
             "author": "Author",
-            "supportedVersions": ["1.6"],
+            "supportedVersions": [record.get("game_version") or "1.6"],
             "description": f"Blueprint derived from installed {def_name}. Review every inherited/copy field before release."
         },
         "defs": [{

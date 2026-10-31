@@ -151,6 +151,9 @@ def _parse_about(path: Path, origin: str) -> dict[str, Any] | None:
             "author": (root.findtext("author") or "").strip() or None,
             "supportedVersions": [(x.text or "").strip() for x in root.findall("./supportedVersions/li") if (x.text or "").strip()],
             "dependencies": [(x.text or "").strip() for x in root.findall("./modDependencies/li/packageId") if (x.text or "").strip()],
+            "loadAfter": [(x.text or "").strip() for x in root.findall("./loadAfter/li") if (x.text or "").strip()],
+            "loadBefore": [(x.text or "").strip() for x in root.findall("./loadBefore/li") if (x.text or "").strip()],
+            "incompatibleWith": [(x.text or "").strip() for x in root.findall("./incompatibleWith/li") if (x.text or "").strip()],
         }
     except (ET.ParseError, OSError):
         return None
@@ -183,7 +186,12 @@ def scan_mods(game_root: Path) -> dict[str, Any]:
             if not (child / "About" / "About.xml").is_file():
                 continue
             assemblies = child / "Assemblies"
-            for vers in ((child, assemblies), (child / "1.6", child / "1.6" / "Assemblies"), (child / "Common", child / "Common" / "Assemblies")):
+            for vers in (
+                (child, assemblies),
+                (child / "1.6", child / "1.6" / "Assemblies"),
+                (child / "1.7", child / "1.7" / "Assemblies"),
+                (child / "Common", child / "Common" / "Assemblies"),
+            ):
                 adir = vers[1]
                 if not adir.is_dir():
                     continue

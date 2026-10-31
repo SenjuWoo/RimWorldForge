@@ -1,5 +1,33 @@
 # Changelog
 
+## 0.3.0 - 2026-10-31
+
+RimWorld 1.7 (Waylith engine / .NET 10) support, with 1.6 behavior preserved.
+
+- Discovery reads both the 1.6 `Player.log` and the 1.7 `Logs/Player.log` plus
+  `harmony.log.txt`; Managed assemblies are probed by file rather than by a
+  hardcoded executable or folder name.
+- Def indexing follows the documented loader rules: root, `Common`, the highest
+  compatible version folder (`1.7` loads `1.6` when no `1.7` exists), and
+  `LoadFolders.xml` with `IfModActive` (OR), `IfModActiveAll` (AND) and
+  `IfModNotActive`, evaluated against `ModsConfig.xml`. Same-relative-path
+  collisions are reported as warnings.
+- `inspect` returns the ParentName chain; Forge still does not claim to emulate
+  `Verse.XmlInheritance` merging.
+- Log triage de-mangles Harmony `_PatchN` wrapper frames, assigns failure phases,
+  correlates `harmony.log.txt`, groups storm signatures, and can redact local
+  paths, Steam IDs, IPs and emails.
+- C# scaffolding is version-aware: 1.6 `net472` with Unity references, 1.7
+  `net10.0` with `Assembly-CSharp`, `UnityStubs` and `Waylith`, outputs to
+  `1.7/Assemblies` for 1.7. Builds use deterministic MSBuild flags.
+- Staging writes a SHA-256 ownership manifest, backs up unowned files under
+  `Mods/.rwforge-backups`, and adds `stage-rollback`.
+- 28-test suite (was 11), including synthetic 1.6/1.7 fixtures.
+- Deferred with reasons: full `Verse.XmlInheritance` emulation, reflection-backed
+  XML field validation, SQLite FTS5 cache, FastMCP/Pydantic rewrite, Grok/Kimi
+  wiring. Each needs the real game assemblies or is a rewrite without a verified
+  user-facing gain.
+
 ## 0.2.1 - 2026-08-29
 
 - Installer now repairs the Hermes `rimworld` profile to match `roblox`/`skyrim`: junction `plugins` -> default `hermes/plugins`, seed all bundled skills (rimworld profile was stuck at 15 skills vs 247), and repair the truncated `config.yaml` so default plugins/skills show up. Keeps the `rimworldforge` MCP and mirrors default-profile MCPs (github/context7/headroom). Future installs are self-healing; existing broken profiles are patched in place.

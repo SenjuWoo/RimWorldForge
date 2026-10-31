@@ -8,9 +8,11 @@ Turn a general AI model into a disciplined RimWorld mod engineer without requiri
 
 ### 1. Installed-game evidence
 
-`rwforge index` reads the user's actual Core and installed DLC Defs. This is the strongest static source because it corresponds to the executable and content they are actually running.
+`rwforge index` reads the user's actual Core and installed DLC Defs. This is the strongest static source because it corresponds to the executable and content they are actually running. Version resolution follows the loader rules: root, `Common`, the highest compatible `1.x` folder, or an explicit `LoadFolders.xml` list with `IfModActive`/`IfModActiveAll`/`IfModNotActive`.
 
-The index intentionally stores a compact record plus source path. `rwforge inspect` reopens the source file to return raw XML on demand. The AI pays context for one relevant example, not the whole game.
+The index intentionally stores a compact record plus source path. It also records `Abstract` and `MayRequire`, and `inspect` returns the ParentName chain so an agent can walk inheritance without Forge pretending to reproduce `Verse.XmlInheritance` merging.
+
+Log evidence is version-aware: 1.6 reads `LocalLow/.../Player.log`; 1.7 reads `Logs/Player.log` and `harmony.log.txt`. Harmony `_PatchN` wrapper frames are de-mangled to the patched method, and repeated storms are grouped by signature. `rwforge inspect` reopens the source file to return raw XML on demand. The AI pays context for one relevant example, not the whole game.
 
 ### 2. Typed authoring plans
 
@@ -26,7 +28,7 @@ The plan writer supports arbitrary nested XML nodes and attributes. Specialized 
 
 ### 3. Transactional workspaces
 
-Forge writes only under a workspace until `stage --approve` is used.
+Forge writes only under a workspace until `stage --approve` is used. Staging then checks a SHA-256 ownership manifest: files Forge wrote may be replaced, but an unowned file that would be overwritten or deleted triggers a timestamped backup under `Mods/.rwforge-backups` first.
 
 ```text
 workspace/
@@ -53,6 +55,7 @@ Current checks:
 - Patch XML parseability
 - local texture-path presence
 - declared asset presence
+- LoadFolders.xml version blocks and folder existence
 - optional conservative reference candidates against a real installed-game index
 
 Future reflection-backed schema validation should inspect the installed `Assembly-CSharp.dll` and map XML fields onto live `Def` subclasses.
@@ -61,7 +64,7 @@ Future reflection-backed schema validation should inspect the installed `Assembl
 
 C# compile and staging are separate operations because they cross the pure-data boundary.
 
-- `csharp-build --approve` launches `dotnet`
+- `csharp-build --approve` launches `dotnet` with deterministic flags; 1.6 targets `net472`, 1.7 targets `net10.0` with `Assembly-CSharp`/`UnityStubs`/`Waylith`
 - `stage --approve` writes a copy into the game's Mods directory
 
 Future runtime launch automation should use its own explicit gate and a temporary mod profile.

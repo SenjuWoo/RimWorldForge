@@ -4,9 +4,9 @@
 
 <div align="center">
 
-# RimWorldForge 0.2.1
+# RimWorldForge 0.3.0
 
-**Inspect the installed RimWorld 1.6 game before inventing XML.**
+**Inspect the installed RimWorld 1.6/1.7 game before inventing XML.**
 
 A local-first AI modding workbench: deterministic Python tools plus a compact
 skill that teaches agents how to build real mods without loading a giant MCP
@@ -15,8 +15,8 @@ schema every turn.
 <p>
   <a href="https://github.com/SenjuWoo/RimWorldForge/actions/workflows/ci.yml"><img src="https://github.com/SenjuWoo/RimWorldForge/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-e0a050?labelColor=1c1610" alt="MIT License"></a>
-  <a href="https://github.com/SenjuWoo/RimWorldForge/releases/tag/v0.2.1"><img src="https://img.shields.io/badge/release-v0.2.1-e0a050?labelColor=1c1610" alt="v0.2.1"></a>
-  <img src="https://img.shields.io/badge/RimWorld-1.6-c4a57a?labelColor=1c1610" alt="RimWorld 1.6">
+  <a href="https://github.com/SenjuWoo/RimWorldForge/releases/tag/v0.3.0"><img src="https://img.shields.io/badge/release-v0.3.0-e0a050?labelColor=1c1610" alt="v0.3.0"></a>
+  <img src="https://img.shields.io/badge/RimWorld-1.6%2F1.7-c4a57a?labelColor=1c1610" alt="RimWorld 1.6/1.7">
   <img src="https://img.shields.io/badge/python-%3E%3D3.10-c4a57a?labelColor=1c1610" alt="Python 3.10+">
 </p>
 
@@ -36,14 +36,23 @@ schema every turn.
   <img src="assets/hero.svg" alt="RimWorldForge loop: index, plan, generate, validate, build" width="100%">
 </p>
 
-A local-first AI modding workbench for **RimWorld 1.6**. It is designed for agents that should create actual mods, inspect the game before inventing XML, validate what they wrote, package clean outputs, and report exactly what has and has not been proven.
+A local-first AI modding workbench for **RimWorld 1.6 and 1.7**. It is designed for agents that should create actual mods, inspect the game before inventing XML, validate what they wrote, package clean outputs, and report exactly what has and has not been proven.
 
 RimWorldForge is deliberately split into two layers:
 
 1. **Forge core**: deterministic Python tools for discovery, Def indexing, generation, validation, C# scaffolding, packaging, and log analysis.
 2. **Agent intelligence**: a compact skill and docs that teach an AI how to choose vanilla XML, Biotech genes/xenotypes, HAR races, Harmony/C#, and art workflows without loading a giant MCP schema every turn.
 
-The foundation targets RimWorld **1.6** and knows the current expansion layout through **Odyssey**. It never treats static XML parsing as proof that a mod works in-game.
+The foundation targets RimWorld **1.6 and 1.7** and knows the current expansion layout through **Odyssey**. It never treats static XML parsing as proof that a mod works in-game.
+
+| | 1.6 | 1.7 |
+|---|---|---|
+| Runtime | .NET Framework 4.7.2 | .NET 10 (Waylith engine) |
+| Harmony | 2.4.3 | 3.x |
+| Logs | `LocalLow/.../Player.log` | `LocalLow/.../Logs/Player.log` + `harmony.log.txt` |
+| C# references | `Assembly-CSharp`, `UnityEngine`, `UnityEngine.CoreModule` | `Assembly-CSharp`, `UnityStubs`, `Waylith` |
+
+1.7 is still an unstable Steam branch as of October 2026; the 1.6 path remains the default for new projects.
 
 ## What works now
 
@@ -51,7 +60,7 @@ The foundation targets RimWorld **1.6** and knows the current expansion layout t
 |---|---|
 | Detect RimWorld + installed DLC | implemented |
 | Index Core/Royalty/Ideology/Biotech/Anomaly/Odyssey Defs | implemented |
-| Index installed mods incl. versioned layouts (`1.6/`, `Common/`, `LoadFolders.xml`) — 1.6 only, legacy version dirs skipped | implemented |
+| Index installed mods incl. versioned layouts (`1.6/`, `1.7/`, `Common/`, `LoadFolders.xml` with `IfModActive`/`IfModActiveAll`) | implemented |
 | Search vanilla/DLC/installed-mod Defs by concept, label, type, or defName | implemented |
 | Clone an installed Def into an editable typed blueprint plan | implemented |
 | Scan local/Workshop mods and detect key frameworks (HAR, Harmony, VEF, VFEC, Big & Small, Giddy-Up, RJW, RimTalk, HugsLib, Vehicle Framework) | implemented |
@@ -64,10 +73,10 @@ The foundation targets RimWorld **1.6** and knows the current expansion layout t
 | Duplicate defName and texture-path checks | implemented |
 | Conservative reference checks against a real game index (vanilla + installed mods) | implemented |
 | Clean build folder, ZIP, SHA-256 file manifest and receipt | implemented |
-| Analyze `Player.log` for common mod failures incl. duplicate-exception storms (per-line repeat counts — the `[Ref XXXX] Duplicate stacktrace` pattern Unity uses to hide original stacks) | implemented |
-| C# project scaffold against the installed RimWorld managed assemblies | implemented |
+| Analyze `Player.log` plus 1.7's `harmony.log.txt`: duplicate-exception storms, Harmony wrapper de-mangling, failure phases, optional PII redaction | implemented |
+| C# project scaffold against the installed game: 1.6 `net472` or 1.7 `net10.0` with `Waylith`/`UnityStubs` | implemented |
 | C# compile through `dotnet build` | implemented, explicit approval required |
-| Stage a built mod into `RimWorld/Mods` | implemented, explicit approval required |
+| Stage a built mod into `RimWorld/Mods` with SHA-256 ownership manifest, backup and rollback | implemented, explicit approval required |
 | Autonomous game launch / spawn test | not implemented yet |
 | Visual correctness test | human or vision step |
 | Image generation | asset contract and prompt workflow only |
@@ -110,7 +119,7 @@ The first design rule is **inspect before inventing**. RimWorld's Defs map direc
 
 ## Install
 
-Requirements: Windows 10/11, macOS, or Linux; Python 3.10+; RimWorld 1.6 for game-aware operations.
+Requirements: Windows 10/11, macOS, or Linux; Python 3.10+; RimWorld 1.6 or 1.7 for game-aware operations.
 
 ### One click (Windows)
 
@@ -217,7 +226,7 @@ rwforge validate Workspaces\WardenMech
 rwforge build Workspaces\WardenMech
 ```
 
-The example is intentionally a **teaching plan**, not a claim that one generic XML block is a complete balanced Biotech mech. Before shipping it, inspect current installed 1.6 mech Defs and adapt fields to the exact parent/classes your game exposes.
+The example is intentionally a **teaching plan**, not a claim that one generic XML block is a complete balanced Biotech mech. Before shipping it, inspect current installed 1.6/1.7 mech Defs and adapt fields to the exact parent/classes your game exposes.
 
 ### 4. Test and diagnose
 
@@ -312,7 +321,7 @@ rwforge csharp-scaffold Workspaces/MyMod
 rwforge csharp-build Workspaces/MyMod --approve
 ```
 
-The scaffold references the managed assemblies from the detected game and targets `net472`, a common RimWorld mod baseline. External compilation is approval-gated because it launches a compiler. Harmony is optional and must be supplied explicitly with `--harmony-dll` if a project needs it.
+The scaffold targets the detected game version, or an explicit `--version 1.6|1.7`. A 1.6 project references the Unity assemblies and targets `net472`; a 1.7 project references `Assembly-CSharp`, `UnityStubs` and `Waylith` and targets `net10.0`. Compiling both from one machine would need both reference sets installed, so Forge does not pretend to cross-compile. External compilation is approval-gated because it launches a compiler. Harmony is optional and must be supplied explicitly with `--harmony-dll` if a project needs it.
 
 ## MCP
 
@@ -355,11 +364,13 @@ A build receipt records the evidence that actually exists.
 
 ## Current source of truth
 
-The foundation was grounded against current 1.6-era references in August 2026:
+The foundation was grounded against current references in October 2026:
 
 - RimWorld Wiki: Mod Folder Structure, About.xml, XML Defs, XML file structure
-- Ludeon Studios: RimWorld 1.6 and current update announcements
-- Humanoid Alien Races repository: 1.6 support declaration and XML-focused feature set
+- RimWorld Wiki: RimWorld 1.7 Mod Updates (net10.0, Harmony 3, new `Logs/` folder)
+- Ludeon Studios: RimWorld 1.6 and the Waylith/1.7 announcement
+- Ludeon: Modder Primer for 1.7 (`Assembly-CSharp`, `UnityStubs`, `Waylith`, `RimWorld` host)
+- Humanoid Alien Races repository: current support declaration and XML-focused feature set
 
 See `knowledge/SOURCES.md` for the URLs and what each source is allowed to prove.
 

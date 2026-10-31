@@ -44,7 +44,7 @@ if ($hermes) {
   if ($existing -match '(?m)^\s*rimworld\s') {
     Write-Host 'profile rimworld already exists - refreshing MCP entry if needed'
   } else {
-    & hermes profile create rimworld --description 'RimWorld 1.6 modding with RimWorldForge: Def indexing across the game plus installed Workshop mods, mod generation/validation/builds, and Player.log diagnosis. MCP is rimworldforge-only so token cost stays minimal.'
+    & hermes profile create rimworld --description 'RimWorld 1.6/1.7 modding with RimWorldForge: Def indexing across the game plus installed Workshop mods, mod generation/validation/builds, and Player.log diagnosis. MCP is rimworldforge-only so token cost stays minimal.'
     if ($LASTEXITCODE -ne 0) { Write-Warning 'hermes profile create failed; skipping Hermes wiring' }
   }
   $cfg = Join-Path $env:LOCALAPPDATA 'hermes\profiles\rimworld\config.yaml'

@@ -1,6 +1,6 @@
 ---
 name: rimworld-forge
-description: Build, inspect, validate, debug, and package RimWorld 1.6 mods with RimWorldForge. Use for RimWorld NPCs, pawn kinds, weapons, apparel, buildings, factions, genes, xenotypes, mechanoids, HAR races, C# mods, Harmony work, Def/Patch XML, art asset planning, or Player.log diagnosis.
+description: Build, inspect, validate, debug, and package RimWorld 1.6 and 1.7 mods with RimWorldForge. Use for RimWorld NPCs, pawn kinds, weapons, apparel, buildings, factions, genes, xenotypes, mechanoids, HAR races, C# mods, Harmony work, Def/Patch XML, art asset planning, or Player.log diagnosis.
 ---
 
 # RimWorldForge agent skill
@@ -20,7 +20,15 @@ Use RimWorldForge as the execution and evidence layer. Do not answer a concrete 
 9. `rw_validate` using the real Def index.
 10. Resolve errors and meaningful warnings before `rw_build`.
 11. If code is required, use the CLI C# scaffold/build commands and distinguish compiler evidence from runtime evidence.
-12. After the user tests the mod in RimWorld, use `rw_log_analyze` on Player.log and repair relevant failures.
+12. After the user tests the mod in RimWorld, use `rw_log_analyze` on Player.log and repair relevant failures. 1.7 also writes `Logs/Player.log` and `harmony.log.txt`; Forge reads both and de-mangles Harmony wrapper frames.
+
+## 1.6 vs 1.7
+
+- 1.6: `net472`, Harmony 2.4.3, `LocalLow/.../Player.log`.
+- 1.7: `net10.0` on the Waylith engine, Harmony 3, `Logs/Player.log` plus `harmony.log.txt`.
+- Most 1.6 mods load on 1.7 unchanged. Do not force a rebuild without evidence that the assembly actually needs one.
+- `rwforge csharp-scaffold --version 1.7` generates the 1.7 reference set; 1.7 assemblies land in `source/1.7/Assemblies`.
+- Declare only the versions actually tested in `About.xml`. 1.7 was an unstable branch in October 2026.
 
 ## Routing
 
