@@ -20,6 +20,19 @@ def _problem(level: str, code: str, message: str, file: str | None = None, **ext
     return {"level": level, "code": code, "message": message, "file": file, **extra}
 
 
+def _declared_asset_present(source: Path, asset: dict[str, Any]) -> bool:
+    target = asset.get("target") or asset.get("path")
+    if not target:
+        return True
+    path = source / str(target).replace("\\", "/")
+    if path.is_file():
+        return True
+    if asset.get("kind") == "pawn_directional" and asset.get("directions"):
+        return all(path.with_name(f"{path.stem}_{direction}{path.suffix}").is_file()
+                   for direction in asset["directions"])
+    return False
+
+
 def _texture_exists(source: Path, tex_path: str) -> bool:
     base = source / "Textures" / Path(tex_path.replace("\\", "/"))
     candidates = [base.with_suffix(ext) for ext in (".png", ".dds", ".jpg", ".jpeg", ".tga")]
@@ -140,8 +153,8 @@ def validate_workspace(workspace: Path, vanilla_index: Path | None = None) -> di
         try:
             manifest = read_json(assets_manifest)
             for asset in manifest.get("assets", []):
-                target = asset.get("target") or asset.get("path")
-                if target and not (source / target).is_file():
+                if not _declared_asset_present(source, asset):
+                    target = asset.get("target") or asset.get("path")
                     problems.append(_problem("warning", "asset.missing", f"Declared asset not present: {target}", str(assets_manifest), asset=asset))
         except Exception as exc:
             problems.append(_problem("error", "asset.manifest", f"Invalid ASSETS-NEEDED.json: {exc}", str(assets_manifest)))

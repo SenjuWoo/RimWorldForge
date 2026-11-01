@@ -35,6 +35,34 @@ Recommended fields in `ASSETS-NEEDED.json`:
 }
 ```
 
+## Free procedural generator
+
+Forge can draw a starting asset locally with Pillow. This is the default when no
+image model is available or when the user wants a 100% free, offline path.
+
+```text
+rwforge assets-generate Workspaces/MyMod
+rwforge assets-generate Workspaces/MyMod --force --seed my-mod-v1
+```
+
+Supported `kind` values:
+
+- `building` — top-down workshop/bench-style sprite
+- `weapon` / `tool` — diagonal rifle/tool silhouette
+- `apparel` / `armor` — cloak or jacket silhouette
+- `item` / `resource` — strapped crate
+- `ui_icon` — hex emblem, readable at small sizes
+- `pawn_directional` — south/north/east/west humanoid sprite
+- `mod_preview` — 640x360 title card
+
+The generator is deterministic per seed and palette, writes only inside the
+workspace, and records every output in `reports/assets-generated.json` with a
+SHA-256 hash. It does not touch the live game.
+
+Generated art is a **starting asset**, not visual proof. Inspect the PNG at 1:1
+and in game; adjust the palette, canvas or silhouette fields and regenerate if
+the read is wrong.
+
 ## Recommended image-generation prompt shape
 
 Use the manifest, plus one inspected vanilla/community-compatible reference when licensing allows visual reference use.
@@ -77,6 +105,21 @@ Weapon sprites need a clear diagonal/side silhouette and transparent padding. Ap
 ## Preview.png
 
 The RimWorld Wiki currently recommends a 640x360 16:9 `About/Preview.png`. This is a marketing/manager image, so it can be composed more cinematically than an in-game texture. Do not reuse it as the pawn sprite.
+
+## Free toolchain
+
+The default path is entirely free and local:
+
+- **Pillow** (installed with Forge) draws every generated PNG.
+- **ffmpeg** (optional, already on many machines) can assemble contact sheets or
+  short previews from the outputs.
+- **Blender** (optional, if installed) can render 3D reference turntables; it is
+  not required for the 2D generator.
+- **ImageMagick / Inkscape** (optional) can normalise or convert SVG concepts.
+
+No paid image API, subscription or network call is required. If the user has a
+local image model, `art-prompts` still emits the production brief; Forge does not
+depend on one.
 
 ## Visual evidence
 

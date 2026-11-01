@@ -2,6 +2,13 @@
 
 This is the default operating loop for an AI agent using RimWorldForge.
 
+## Golden path first
+
+If the user asks for a complete mod and the local toolchain is unproven, run
+`rwforge demo --output Workspaces/Demo` once. It creates a small mod, draws its
+art locally, validates it and builds a ZIP. Then replace the demo plan with the
+real design. This proves the install before spending tokens on content.
+
 ## Before authoring
 
 1. Run `rw_doctor` / `rwforge doctor`.
@@ -42,19 +49,29 @@ Try `CompProperties`, `DefModExtension`, jobs, abilities or framework facilities
 
 Create an asset manifest before generating images. The manifest defines role, target path, transparency, directions, framing and symmetry constraints. Generate game assets individually, not as a sticker sheet.
 
+If no paid image model is available, use the free local generator:
+
+```text
+rwforge assets-generate <workspace>
+```
+
+It draws buildings, weapons, apparel, items, icons, directional pawns and
+previews with Pillow. Inspect the PNGs at 1:1; generation is not visual proof.
+
 After assets land, run validation again. Then test in-game at the actual draw scale.
 
 ## Build and test
 
 1. `plan-validate`
 2. `generate`
-3. `validate --index <real index>`
-4. optional `csharp-build --approve`
-5. `build`
-6. `stage --approve` only after the user intends to test
-7. user launches RimWorld and enables the mod
-8. `log-analyze`
-9. repair and repeat
+3. `assets-generate` when the plan declares art
+4. `validate --index <real index>`
+5. optional `csharp-build --approve`
+6. `build`
+7. `stage --approve` only after the user intends to test
+8. user launches RimWorld and enables the mod
+9. `log-analyze`
+10. repair and repeat
 
 Do not claim success before the evidence tier required by the user's request exists.
 

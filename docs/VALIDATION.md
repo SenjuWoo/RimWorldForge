@@ -31,6 +31,13 @@ Generated content was instantiated and exercised. Foundation 0.1 does not automa
 ### visual_tested
 A human or vision system inspected actual in-game rendering at expected rotations, scales and UI contexts.
 
+## Procedural art is not visual evidence
+
+`rwforge assets-generate` proves that a PNG exists at the declared path, with the
+requested canvas and a recorded hash. It does **not** prove the anchor, draw
+size, rotation, layering or in-game readability. Those remain `visual_tested`
+and require a screenshot or human inspection.
+
 ## Warning philosophy
 
 Warnings are used where the validator has a useful suspicion but insufficient type information to safely reject the build, for example:

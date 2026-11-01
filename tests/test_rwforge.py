@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import sys
@@ -20,6 +21,7 @@ from rwforge.assets import emit_prompts
 from rwforge.blueprints import blueprint_from_def
 from rwforge.builder import build_project, rollback_stage, stage_project
 from rwforge.csharp import scaffold as csharp_scaffold
+from rwforge.demo import run_demo
 from rwforge.discovery import player_log_candidates
 from rwforge.generator import apply_plan, validate_plan
 from rwforge.indexer import build_index, inspect_def, search_index
@@ -28,6 +30,12 @@ from rwforge.mods import scan_mods
 from rwforge.project import new_project
 from rwforge.validator import validate_workspace
 from rwforge.versions import active_package_ids, normalize_version
+
+try:
+    import PIL  # noqa: F401
+    HAS_PIL = True
+except ImportError:
+    HAS_PIL = False
 
 
 class ForgeTests(unittest.TestCase):
@@ -436,6 +444,64 @@ class VersionAndLogTests(unittest.TestCase):
             result = validate_workspace(ws)
             self.assertTrue(any(w["code"] == "loadfolders.missing" for w in result["warnings"]))
 
+
+
+
+class ProceduralArtTests(unittest.TestCase):
+    @unittest.skipUnless(HAS_PIL, "Pillow is not installed")
+    def test_demo_generates_art_validates_and_builds(self):
+        with tempfile.TemporaryDirectory() as td:
+            out = Path(td) / "ForgeDemo"
+            result = run_demo(out)
+            self.assertTrue(result["ok"], result)
+            self.assertEqual(result["validation"]["warnings"], [])
+            self.assertEqual(result["assets"]["generated"], 7)
+            preview = out / "source" / "About" / "Preview.png"
+            self.assertTrue(preview.is_file())
+            self.assertGreater(preview.stat().st_size, 5000)
+            for name in ("Workbench.png", "Tool.png", "Pawn_south.png", "Pawn_north.png", "Pawn_east.png", "Pawn_west.png"):
+                self.assertTrue((out / "source" / "Textures" / "ForgeDemo" / name).is_file(), name)
+            with zipfile.ZipFile(result["archive"]) as zf:
+                names = zf.namelist()
+                self.assertTrue(any(name.endswith("About/Preview.png") for name in names))
+                self.assertTrue(any(name.endswith("Textures/ForgeDemo/Workbench.png") for name in names))
+
+    @unittest.skipUnless(HAS_PIL, "Pillow is not installed")
+    def test_procedural_generation_is_deterministic(self):
+        from rwforge.artgen import generate_assets
+        with tempfile.TemporaryDirectory() as td:
+            ws = Path(td) / "Art"
+            new_project("Art Mod", "tester.art", workspace=ws)
+            manifest = {"schema": 1, "assets": [{
+                "id": "bench", "kind": "building", "target": "Textures/Test/Bench.png",
+                "canvas": [64, 64], "transparent": True,
+            }]}
+            (ws / "plans" / "ASSETS-NEEDED.json").write_text(json.dumps(manifest), encoding="utf-8")
+            generate_assets(ws, force=True, seed="fixed")
+            first = hashlib.sha256((ws / "source" / "Textures/Test/Bench.png").read_bytes()).hexdigest()
+            generate_assets(ws, force=True, seed="fixed")
+            second = hashlib.sha256((ws / "source" / "Textures/Test/Bench.png").read_bytes()).hexdigest()
+            self.assertEqual(first, second)
+
+    @unittest.skipUnless(HAS_PIL, "Pillow is not installed")
+    def test_pawn_directional_outputs_four_files_and_skips_existing(self):
+        from rwforge.artgen import generate_assets
+        with tempfile.TemporaryDirectory() as td:
+            ws = Path(td) / "Art"
+            new_project("Art Mod", "tester.art", workspace=ws)
+            manifest = {"schema": 1, "assets": [{
+                "id": "pawn", "kind": "pawn_directional", "target": "Textures/Test/Pawn.png",
+                "canvas": [64, 64], "transparent": True,
+                "directions": ["south", "north", "east", "west"],
+            }]}
+            (ws / "plans" / "ASSETS-NEEDED.json").write_text(json.dumps(manifest), encoding="utf-8")
+            first = generate_assets(ws, seed="fixed")
+            self.assertEqual(first["generated"], 4)
+            for direction in ("south", "north", "east", "west"):
+                self.assertTrue((ws / "source" / "Textures/Test" / f"Pawn_{direction}.png").is_file())
+            second = generate_assets(ws, seed="fixed")
+            self.assertEqual(second["generated"], 0)
+            self.assertEqual(second["skipped"], 4)
 
 
 if __name__ == "__main__":

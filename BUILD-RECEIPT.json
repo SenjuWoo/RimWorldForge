@@ -1,6 +1,6 @@
 {
-  "version": "0.3.0",
-  "file_count": 48,
+  "version": "0.4.0",
+  "file_count": 52,
   "files": [
     {
       "path": ".github/dependabot.yml",
@@ -8,9 +8,19 @@
       "sha256": "7080f5c3f79770d239ef5fd62e799df288c72419260f9ad3aad6d4cac214767b"
     },
     {
+      "path": ".github/ISSUE_TEMPLATE/bug_report.yml",
+      "bytes": 1360,
+      "sha256": "e268b86d12c4062e0c670122968fca276247fe136628095e7b85f5489fdff486"
+    },
+    {
+      "path": ".github/PULL_REQUEST_TEMPLATE.md",
+      "bytes": 414,
+      "sha256": "172fe2daaa2b26c0db8c6786a4825f1baa8fb4b801c0a8527cf0cb22a671956a"
+    },
+    {
       "path": ".github/workflows/ci.yml",
-      "bytes": 446,
-      "sha256": "40739fc42ae83c5ae8ee9b0fec9634564bd49eedb6f8fbcb73dab7a80e42cfb4"
+      "bytes": 516,
+      "sha256": "7309e78b1fc821fa965586f07ccf82f9805c4dfd520a3ed18de45c1ecbb5617b"
     },
     {
       "path": ".gitignore",
@@ -29,13 +39,13 @@
     },
     {
       "path": "CHANGELOG.md",
-      "bytes": 3904,
-      "sha256": "46e159bee9b4fe1bd912b774af1ea37d5fad2e2c067b3029ef00c9a6e183e237"
+      "bytes": 4740,
+      "sha256": "2a38454590737f2eb269310bad8a084a87f8310aa1780363cafe646262a7f976"
     },
     {
       "path": "CODE_OF_CONDUCT.md",
-      "bytes": 2365,
-      "sha256": "3e8647c973e99a206051155be179a69afcaf692701d227f0bbb9937fd3ac6386"
+      "bytes": 1989,
+      "sha256": "e25387a1a0f3a225c6a7b3d18100c8dace051e57f63b25e51be21334fbaea55f"
     },
     {
       "path": "CONTRIBUTING.md",
@@ -44,18 +54,18 @@
     },
     {
       "path": "docs/AGENT-WORKFLOW.md",
-      "bytes": 2855,
-      "sha256": "9d485f18625537b7d88ff317f150f2f6c0232028916b5da0756350c893965735"
+      "bytes": 3507,
+      "sha256": "552ed4f6adfd8d24f18c355ad0861f33fa90d560d65cd79c89cedc9c396aa429"
     },
     {
       "path": "docs/ARCHITECTURE.md",
-      "bytes": 3858,
-      "sha256": "3f13e5923e48e50d51a89ab9645bb1ff3e1bade7cfb533579b8f205a872108d8"
+      "bytes": 4256,
+      "sha256": "c311eda4be58e2bf9ea393a1bacc1613f5b6ab4293b6de32dc3b614394840afa"
     },
     {
       "path": "docs/ART-PIPELINE.md",
-      "bytes": 3453,
-      "sha256": "92bbf474404aee5eaf24080e761d2e91aa45a16608e4a0443bdec59e3fc1a026"
+      "bytes": 5144,
+      "sha256": "ae3263614b7d7db2aa88c23e0b927e2b6a2b64a4da9a55b0e9266fb094fc60f5"
     },
     {
       "path": "docs/CONTENT-RECIPES.md",
@@ -79,8 +89,8 @@
     },
     {
       "path": "docs/VALIDATION.md",
-      "bytes": 2184,
-      "sha256": "d38d95e2e0b3ca7967fe522216e723435859f77a5f3c0eb64f1015658ef2e3e5"
+      "bytes": 2510,
+      "sha256": "9f58649773f3c94b08fa173ffab38b0fc5b022d0887e03d4e4dffcf9ab2ed8c8"
     },
     {
       "path": "examples/art/warden-concept.svg",
@@ -99,8 +109,8 @@
     },
     {
       "path": "Install.ps1",
-      "bytes": 9845,
-      "sha256": "bb451c18319860d75de9942529c9b37c985bcfe2c1fb8a9c4ccd83d37ac8445c"
+      "bytes": 10554,
+      "sha256": "2fbfb80a593b8566535557eb8adf9b73202460d8329dc767f236e12c5ddee873"
     },
     {
       "path": "knowledge/SOURCES.md",
@@ -114,18 +124,18 @@
     },
     {
       "path": "mcp_server/server.py",
-      "bytes": 7820,
-      "sha256": "f8bec0b045f5da973ccfe09b5b6ed9d2ba17b950a1c68990e0914b1f8995f001"
+      "bytes": 8335,
+      "sha256": "5e1a1005e908b3065e2b3114b0c3a68ce26dab22d023538511151f35736b70d6"
     },
     {
       "path": "pyproject.toml",
-      "bytes": 458,
-      "sha256": "3dba0a1c543be9a25fa6a3056a939fa323963a2f6d8961144bce6d5194dea0f2"
+      "bytes": 470,
+      "sha256": "ca96b45dce9592666b95383109fe6478f5ad0f3dd864ab36ad3e004b45444bb0"
     },
     {
       "path": "README.md",
-      "bytes": 16112,
-      "sha256": "03b213e5ba90b095d73a04e96b072d6a7873dc14f97d3627362d704b3b6209b7"
+      "bytes": 17172,
+      "sha256": "783c1ada014a0bf69b592f0abc7cb526b3165f10c0841514a7c0634a00d7bb2f"
     },
     {
       "path": "schemas/project-plan.schema.json",
@@ -139,13 +149,18 @@
     },
     {
       "path": "skills/rimworld-forge/SKILL.md",
-      "bytes": 3637,
-      "sha256": "fb27c2cf93b4b386f18b95b3bd1049863503d07fd43ac6acd65912b2343b089f"
+      "bytes": 4558,
+      "sha256": "2e878a9225abe9e4169dff968c9f00b104523951b984a1fcaf7f466a37457395"
     },
     {
       "path": "src/rwforge/__init__.py",
       "bytes": 62,
-      "sha256": "fae7c99fdc79d9beb1e7aac66cb31313ad03b8f00d63c57614ffb0041a328af0"
+      "sha256": "455402836eead27637e7688793db409fc966c06619331a113a771fdfc429a462"
+    },
+    {
+      "path": "src/rwforge/artgen.py",
+      "bytes": 25899,
+      "sha256": "237ad6fdab419f8dfdcb45d21b63d6674fb73ff8455f02f591d24ba8e798ed72"
     },
     {
       "path": "src/rwforge/assets.py",
@@ -164,13 +179,18 @@
     },
     {
       "path": "src/rwforge/cli.py",
-      "bytes": 10900,
-      "sha256": "74bace94e7aa44d9564d5e71d54f1c04a46ac9f4b11260cb8b9a2872373381f1"
+      "bytes": 11874,
+      "sha256": "f7e601946722c271f760339d49ac6aea723527d000b4c5e67f6b78ca9fab7b8a"
     },
     {
       "path": "src/rwforge/csharp.py",
       "bytes": 8666,
       "sha256": "be380f3e6a7699acd7f159fccac24fa09fc65b7e3e3a904898fd61e255417e2c"
+    },
+    {
+      "path": "src/rwforge/demo.py",
+      "bytes": 5295,
+      "sha256": "beaad4b3dc8991928979451f5774b7e2c6adc6b21c73552470c62934d0ca289e"
     },
     {
       "path": "src/rwforge/discovery.py",
@@ -209,8 +229,8 @@
     },
     {
       "path": "src/rwforge/validator.py",
-      "bytes": 9349,
-      "sha256": "07d5682e413e20a12c903eb8c07125ecb64c9ae071745fd0e31c9c0affa851d1"
+      "bytes": 9851,
+      "sha256": "d147188c56de33237b1f256a6cbe1294e02d82d6616cdb0616e014951a036408"
     },
     {
       "path": "src/rwforge/versions.py",
@@ -229,18 +249,18 @@
     },
     {
       "path": "tests/test_rwforge.py",
-      "bytes": 24728,
-      "sha256": "255d632db232b89db01dadd851ef56f9b1c8c14acd8a7d89446fa19199638a4c"
+      "bytes": 28190,
+      "sha256": "190bdb677d0ebb7b140322a5a850118346429ba991d95abdb38b9db5289902c3"
     },
     {
       "path": "Uninstall.ps1",
-      "bytes": 1451,
-      "sha256": "130055f07276f5b25f5e2edab72472914d89d13ddca0877d14ae9111c98b4c9e"
+      "bytes": 1963,
+      "sha256": "0f0e18678cd620609ff28ac75a619f43d9cd7adc5292d71e6791fcd8e621b790"
     },
     {
       "path": "VERSION.txt",
       "bytes": 6,
-      "sha256": "d915cc95d6ca8f47ae297713ed46d4e5c5d99ddd29fc3c61e263bdf305f2b5b0"
+      "sha256": "40b8eb4000a913a7791090535f291d3d369874162a89ef3c9e3d4e887a1b9e79"
     }
   ]
 }

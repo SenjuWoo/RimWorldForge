@@ -7,6 +7,8 @@ description: Build, inspect, validate, debug, and package RimWorld 1.6 and 1.7 m
 
 Use RimWorldForge as the execution and evidence layer. Do not answer a concrete mod-building request from memory when the installed game can settle the XML shape.
 
+**Forge-first:** on any RimWorld modding request, run `rwforge doctor`, ensure an index exists, and prefer Forge's search/validate/build loop over recalled XML. If the CLI is not on PATH, use the project's `.venv\Scripts\rwforge.exe`.
+
 ## Default sequence
 
 1. `rw_doctor`.
@@ -43,6 +45,21 @@ Use RimWorldForge as the execution and evidence layer. Do not answer a concrete 
 ## Art
 
 Read `docs/ART-PIPELINE.md`. Create/update `plans/ASSETS-NEEDED.json` before generating art. Ask an image system for individual transparent game assets, not a collage. Preserve direction, scale, anchor and naming across multi-direction sprites. A concept image is not a validated game texture.
+
+### Free procedural art (default)
+
+When no paid image model is available, use the built-in local generator:
+
+```text
+rwforge assets-generate <workspace>
+rwforge assets-generate <workspace> --force --seed my-mod-v1
+```
+
+It draws buildings, weapons, apparel, items, icons, directional pawns and 640x360 previews with Pillow. It is deterministic, offline and free. Inspect the PNG at 1:1 and in game; the generator proves presence and hashes, not visual correctness.
+
+### Golden path
+
+`rwforge demo --output Workspaces/Demo` creates a small two-def mod, draws its art, validates it and builds a ZIP. Use it to prove the local toolchain, then replace the demo content with the real plan.
 
 ## Evidence language
 

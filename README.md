@@ -4,7 +4,7 @@
 
 <div align="center">
 
-# RimWorldForge 0.3.0
+# RimWorldForge 0.4.0
 
 **Inspect the installed RimWorld 1.6/1.7 game before inventing XML.**
 
@@ -36,7 +36,7 @@ schema every turn.
   <img src="assets/hero.svg" alt="RimWorldForge loop: index, plan, generate, validate, build" width="100%">
 </p>
 
-A local-first AI modding workbench for **RimWorld 1.6 and 1.7**. It is designed for agents that should create actual mods, inspect the game before inventing XML, validate what they wrote, package clean outputs, and report exactly what has and has not been proven.
+A local-first AI modding workbench for **RimWorld 1.6 and 1.7**, with free procedural art generation. It is designed for agents that should create actual mods, inspect the game before inventing XML, validate what they wrote, package clean outputs, and report exactly what has and has not been proven.
 
 RimWorldForge is deliberately split into two layers:
 
@@ -79,7 +79,8 @@ The foundation targets RimWorld **1.6 and 1.7** and knows the current expansion 
 | Stage a built mod into `RimWorld/Mods` with SHA-256 ownership manifest, backup and rollback | implemented, explicit approval required |
 | Autonomous game launch / spawn test | not implemented yet |
 | Visual correctness test | human or vision step |
-| Image generation | asset contract and prompt workflow only |
+| Free local procedural art | buildings, items, apparel, directional pawns, icons and previews; deterministic Pillow generator, no network or paid API |
+| One-command demo / golden path | implemented, pipeline proof only |
 | Steam Workshop publication | not implemented yet |
 
 Run `rwforge capabilities` for the machine-readable matrix.
@@ -115,11 +116,21 @@ launch RimWorld yourself -> Player.log
 log-analyze -> repair -> repeat
 ```
 
+## Golden path
+
+One command creates a small demo mod, draws its textures and preview locally, validates it, and builds a ZIP:
+
+```text
+rwforge demo --output Workspaces/Demo
+```
+
+It is a pipeline proof, not a balance-tested or load-tested mod. Open the PNGs and load the result in RimWorld before calling it working.
+
 The first design rule is **inspect before inventing**. RimWorld's Defs map directly onto C# `Def` classes and vanilla Defs are the best practical schema examples. A weak model becomes dramatically more reliable when it can search the installed game instead of guessing tag names from memory.
 
 ## Install
 
-Requirements: Windows 10/11, macOS, or Linux; Python 3.10+; RimWorld 1.6 or 1.7 for game-aware operations.
+Requirements: Windows 10/11, macOS, or Linux; Python 3.10+; Pillow is installed with the package; RimWorld 1.6 or 1.7 for game-aware operations.
 
 ### One click (Windows)
 
@@ -304,7 +315,16 @@ Plans can declare assets:
 }
 ```
 
-`ASSETS-NEEDED.json` is generated into the workspace. `rwforge art-prompts <workspace>` turns every asset brief into a production prompt file. An AI with image generation can consume those prompts, create the assets, normalize/crop them, and then rerun `rwforge validate`.
+`ASSETS-NEEDED.json` is generated into the workspace. `rwforge art-prompts <workspace>` turns every asset brief into a production prompt file for an external image generator.
+
+Forge also ships a **free, local procedural generator** for a usable starting asset:
+
+```text
+rwforge assets-generate Workspaces/MyMod
+rwforge assets-generate Workspaces/MyMod --force --seed my-mod-v1
+```
+
+It reads the same manifest and draws buildings, weapons, apparel, items, icons, directional pawns and 640x360 previews with Pillow. It is deterministic per seed, needs no network, and writes `reports/assets-generated.json` with SHA-256 hashes. Generated art is a starting point: inspect the PNGs at 1:1 and in game before calling it visually tested.
 
 The bundled `examples/art/warden-concept.svg` is **concept/reference art only**, not a game-ready pawn texture. `docs/ART-PIPELINE.md` explains the contract.
 
@@ -325,7 +345,7 @@ The scaffold targets the detected game version, or an explicit `--version 1.6|1.
 
 ## MCP
 
-The MCP façade intentionally stays at only 11 broad tools. Expert helpers such as Def blueprints, mod/framework scans, C# compilation and art-prompt emission remain CLI/skill operations so they do not inflate every MCP turn:
+The MCP façade intentionally stays at 12 broad tools. Expert helpers such as Def blueprints, mod/framework scans, C# compilation, the demo and art-prompt emission remain CLI/skill operations so they do not inflate every MCP turn:
 
 ```text
 rw_doctor
@@ -339,6 +359,7 @@ rw_generate
 rw_validate
 rw_build
 rw_log_analyze
+rw_assets_generate
 ```
 
 Start it with:

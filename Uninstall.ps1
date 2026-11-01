@@ -27,6 +27,19 @@ foreach ($skill in @(
   if (Test-Path $skill) { Remove-Item -LiteralPath $skill -Recurse -Force; Write-Host "removed $skill" }
 }
 
+$binDir = Join-Path $env:LOCALAPPDATA 'RimWorldForge\bin'
+$launcher = Join-Path $binDir 'rwforge.cmd'
+if (Test-Path $launcher) {
+  Remove-Item -LiteralPath $launcher -Force
+  Write-Host "removed $launcher"
+}
+$userPath = [Environment]::GetEnvironmentVariable('Path', 'User')
+if ($userPath -like "*$binDir*") {
+  $parts = $userPath -split ';' | Where-Object { $_ -and $_ -ne $binDir }
+  [Environment]::SetEnvironmentVariable('Path', ($parts -join ';'), 'User')
+  Write-Host "removed $binDir from the user PATH"
+}
+
 $venv = Join-Path $root '.venv'
 if (Test-Path $venv) {
   if ($PSCmdlet.ShouldProcess($venv, 'Remove RimWorldForge local virtual environment')) {

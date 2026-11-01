@@ -12,6 +12,7 @@ from .assets import emit_prompts
 from .blueprints import blueprint_from_def
 from .builder import build_project, rollback_stage, stage_project
 from .csharp import build as csharp_build, scaffold as csharp_scaffold
+from .demo import run_demo
 from .discovery import discover_game, doctor, player_log_path
 from .generator import apply_plan, validate_plan
 from .indexer import build_index, inspect_def, search_index
@@ -63,6 +64,8 @@ def capabilities() -> dict:
             "def_blueprint_from_installed_example": "implemented",
             "installed_mod_framework_scan": "implemented",
             "art_prompt_emission": "implemented",
+            "procedural_asset_generation": "implemented_free_local",
+            "demo_golden_path": "implemented",
             "typed_plan_generation": "implemented",
             "about_xml_generation": "implemented",
             "loadfolders_generation": "implemented",
@@ -155,6 +158,14 @@ def parser() -> argparse.ArgumentParser:
     ap = sub.add_parser("art-prompts")
     ap.add_argument("workspace")
 
+    ag = sub.add_parser("assets-generate")
+    ag.add_argument("workspace")
+    ag.add_argument("--force", action="store_true", help="Overwrite existing generated assets")
+    ag.add_argument("--seed", help="Deterministic seed for palettes and shapes")
+
+    dm = sub.add_parser("demo")
+    dm.add_argument("--output", required=True, help="New workspace directory for the demo")
+
     la = sub.add_parser("log-analyze")
     la.add_argument("log", nargs="?")
     la.add_argument("--context", type=int, default=1)
@@ -220,6 +231,14 @@ def main(argv: list[str] | None = None) -> int:
             result = stage_project(Path(args.workspace), require_game(args.game), args.approve)
         elif args.command == "art-prompts":
             result = emit_prompts(Path(args.workspace))
+        elif args.command == "assets-generate":
+            try:
+                from .artgen import generate_assets
+            except ImportError as exc:
+                raise ValueError("Pillow is required for procedural art. Install with: pip install Pillow") from exc
+            result = generate_assets(Path(args.workspace), force=args.force, seed=args.seed)
+        elif args.command == "demo":
+            result = run_demo(Path(args.output))
         elif args.command == "log-analyze":
             result = analyze_log(
                 Path(args.log) if args.log else player_log_path(),
