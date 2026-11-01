@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.4.0 - 2026-11-01
+
+Free, local procedural art and a one-command demo.
+
+- Added `rwforge assets-generate`: deterministic Pillow drawings for buildings,
+  weapons, apparel, items, icons, directional pawns and 640x360 previews. No
+  network, no paid API; every output is hashed in `reports/assets-generated.json`.
+- Added `rwforge demo --output <dir>`: creates a two-def mod, draws its art,
+  validates it and builds a ZIP as a pipeline proof.
+- Added `rw_assets_generate` to the MCP façade (12 tools).
+- Validator recognises directional pawn outputs (`Pawn_south.png`, ...) instead
+  of warning that the base target is missing.
+- Installer creates an `rwforge` launcher and adds it to the user PATH; the
+  uninstaller removes both.
+- CI installs the package before testing so Pillow and packaging are exercised.
+- 31 offline tests.
+
 ## 0.3.0 - 2026-10-31
 
 RimWorld 1.7 (Waylith engine / .NET 10) support, with 1.6 behavior preserved.

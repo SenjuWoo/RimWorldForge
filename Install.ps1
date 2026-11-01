@@ -23,6 +23,19 @@ if (-not $SkipTests) {
   if ($LASTEXITCODE -ne 0) { throw "tests failed with exit code $LASTEXITCODE" }
 }
 
+# Small launcher so `rwforge` works outside the venv; Uninstall.ps1 reverses this.
+$binDir = Join-Path $env:LOCALAPPDATA 'RimWorldForge\bin'
+New-Item -ItemType Directory -Force -Path $binDir | Out-Null
+$launcher = Join-Path $binDir 'rwforge.cmd'
+Set-Content -Path $launcher -Encoding ASCII -Value "@echo off`r`n`"$vpy`" -m rwforge.cli %*`r`n"
+$userPath = [Environment]::GetEnvironmentVariable('Path', 'User')
+if (-not $userPath) { $userPath = '' }
+if ($userPath -notlike "*$binDir*") {
+  [Environment]::SetEnvironmentVariable('Path', ($userPath.TrimEnd(';') + ';' + $binDir), 'User')
+  Write-Host "added $binDir to the user PATH; open a new shell to use 'rwforge'"
+}
+Write-Host "rwforge launcher: $launcher"
+
 $serverPy = Join-Path $root 'mcp_server\server.py'
 $skillSrc = Join-Path $root 'skills\rimworld-forge'
 $mcpBlock = @"

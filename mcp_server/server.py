@@ -41,6 +41,7 @@ TOOLS = [
     {"name": "rw_validate", "description": "Static-validate About.xml, Def/Patch XML, duplicate names, texture paths and conservative reference candidates.", "inputSchema": schema({"workspace": {"type": "string"}, "index": {"type": "string"}}, ["workspace"])},
     {"name": "rw_build", "description": "Build a clean mod folder + deterministic ZIP + SHA-256 receipt after validation.", "inputSchema": schema({"workspace": {"type": "string"}, "index": {"type": "string"}}, ["workspace"])},
     {"name": "rw_log_analyze", "description": "Analyze Player.log plus harmony.log.txt for XML inheritance, XPath, Harmony, texture and exception failures; optional PII redaction.", "inputSchema": schema({"log": {"type": "string"}, "context": {"type": "integer"}, "max_hits": {"type": "integer"}, "harmony_log": {"type": "string"}, "redact": {"type": "boolean"}}, ["log"])},
+    {"name": "rw_assets_generate", "description": "Generate the workspace's declared textures locally with deterministic procedural art (free, no network). Inspect the PNGs afterwards.", "inputSchema": schema({"workspace": {"type": "string"}, "force": {"type": "boolean"}, "seed": {"type": "string"}}, ["workspace"])},
 ]
 
 
@@ -75,6 +76,9 @@ def call_tool(name: str, a: dict[str, Any]) -> dict[str, Any]:
             harmony_log=Path(a["harmony_log"]) if a.get("harmony_log") else None,
             redact=bool(a.get("redact", False)),
         )
+    if name == "rw_assets_generate":
+        from rwforge.artgen import generate_assets
+        return generate_assets(Path(a["workspace"]), force=bool(a.get("force", False)), seed=a.get("seed"))
     raise KeyError(name)
 
 

@@ -73,6 +73,14 @@ Future runtime launch automation should use its own explicit gate and a temporar
 
 Build receipts use SHA-256 for every built file and the archive. Evidence flags remain distinct. The system must never upgrade `syntax_valid` into `runtime_tested` simply because no parser threw.
 
+### 7. Free procedural art
+
+`rwforge assets-generate` reads the same `ASSETS-NEEDED.json` contract and draws
+deterministic PNGs locally with Pillow: buildings, weapons, apparel, items,
+icons, directional pawns and previews. It writes hashes and provenance to
+`reports/assets-generated.json`. This is a starting-asset tier, not visual
+validation; the evidence model keeps `visual_tested` separate.
+
 ## Why the MCP is small
 
-The MCP has 11 broad tools. The agent skill provides routing rules and CLI escalation. This mirrors the bundle's token-discipline philosophy: capability should be discoverable without paying the schema cost on unrelated turns.
+The MCP has 12 broad tools. The agent skill provides routing rules and CLI escalation. This mirrors the bundle's token-discipline philosophy: capability should be discoverable without paying the schema cost on unrelated turns.

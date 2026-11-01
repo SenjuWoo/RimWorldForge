@@ -4,13 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "rimworldforge"
-version = "0.3.0"
+version = "0.4.0"
 description = "Local-first AI modding workbench for RimWorld 1.6 and 1.7"
 readme = "README.md"
 requires-python = ">=3.10"
 authors = [{name = "RimWorldForge contributors"}]
 license = {text = "MIT"}
-dependencies = []
+dependencies = ["Pillow>=10"]
 
 [project.scripts]
 rwforge = "rwforge.cli:main"
