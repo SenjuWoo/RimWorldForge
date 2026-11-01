@@ -7,6 +7,8 @@ Free, local procedural art and a one-command demo.
 - Added `rwforge assets-generate`: deterministic Pillow drawings for buildings,
   weapons, apparel, items, icons, directional pawns and 640x360 previews. No
   network, no paid API; every output is hashed in `reports/assets-generated.json`.
+- Added `rwforge assets-sheet`: one labelled contact sheet of every generated PNG
+  for fast visual review.
 - Added `rwforge demo --output <dir>`: creates a two-def mod, draws its art,
   validates it and builds a ZIP as a pipeline proof.
 - Added `rw_assets_generate` to the MCP façade (12 tools).
@@ -15,7 +17,7 @@ Free, local procedural art and a one-command demo.
 - Installer creates an `rwforge` launcher and adds it to the user PATH; the
   uninstaller removes both.
 - CI installs the package before testing so Pillow and packaging are exercised.
-- 31 offline tests.
+- 32 offline tests.
 
 ## 0.3.0 - 2026-10-31
 

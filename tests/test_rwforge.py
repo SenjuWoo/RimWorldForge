@@ -467,6 +467,18 @@ class ProceduralArtTests(unittest.TestCase):
                 self.assertTrue(any(name.endswith("Textures/ForgeDemo/Workbench.png") for name in names))
 
     @unittest.skipUnless(HAS_PIL, "Pillow is not installed")
+    def test_contact_sheet_combines_generated_assets(self):
+        from rwforge.artgen import make_contact_sheet
+        with tempfile.TemporaryDirectory() as td:
+            out = Path(td) / "SheetDemo"
+            run_demo(out)
+            result = make_contact_sheet(out)
+            sheet = Path(result["sheet"])
+            self.assertTrue(sheet.is_file())
+            self.assertGreater(sheet.stat().st_size, 5000)
+            self.assertEqual(len(result["files"]), 7)
+
+    @unittest.skipUnless(HAS_PIL, "Pillow is not installed")
     def test_procedural_generation_is_deterministic(self):
         from rwforge.artgen import generate_assets
         with tempfile.TemporaryDirectory() as td:

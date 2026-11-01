@@ -468,6 +468,51 @@ def _render_asset(
     }
 
 
+def make_contact_sheet(
+    workspace: Path,
+    output: Path | None = None,
+    columns: int = 4,
+    thumb: int = 160,
+) -> dict[str, Any]:
+    """Combine generated PNGs into one labelled sheet for fast visual review."""
+    workspace = workspace.resolve()
+    source = workspace / "source"
+    paths = sorted(path for path in source.rglob("*.png") if path.is_file())
+    if not paths:
+        raise FileNotFoundError(f"No generated PNGs found under {source}")
+    columns = max(1, min(columns, len(paths)))
+    rows = math.ceil(len(paths) / columns)
+    pad, label_h, title_h = 16, 20, 54
+    width = columns * (thumb + pad) + pad
+    height = title_h + rows * (thumb + label_h + pad) + pad
+    image = _gradient((width, height), "#17120d", "#0c0a08").convert("RGBA")
+    draw = ImageDraw.Draw(image, "RGBA")
+    draw.text((pad, 14), "Generated assets", font=_font(22, bold=True), fill=(230, 215, 190))
+    draw.text((pad, 38), "local procedural output  |  inspect at 1:1 before shipping", font=_font(12), fill=(180, 165, 140))
+    label_font = _font(12)
+    for index, path in enumerate(paths):
+        image_file = Image.open(path).convert("RGBA")
+        image_file.thumbnail((thumb, thumb), Image.Resampling.LANCZOS)
+        x = pad + (index % columns) * (thumb + pad)
+        y = title_h + (index // columns) * (thumb + label_h + pad)
+        draw.rounded_rectangle([x, y, x + thumb, y + thumb], radius=8,
+                               fill=(255, 255, 255, 10), outline=(230, 180, 90, 90), width=1)
+        image.alpha_composite(image_file, (x + (thumb - image_file.width) // 2,
+                                           y + (thumb - image_file.height) // 2))
+        label = path.stem
+        draw.text((x, y + thumb + 3), label, font=label_font, fill=(210, 195, 170))
+    destination = output or (workspace / "reports" / "assets-contact-sheet.png")
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    image.convert("RGB").save(destination, "PNG", optimize=True)
+    return {
+        "ok": True,
+        "sheet": str(destination),
+        "files": [str(path.relative_to(source)) for path in paths],
+        "width": width,
+        "height": height,
+    }
+
+
 def generate_assets(workspace: Path, force: bool = False, seed: str | None = None) -> dict[str, Any]:
     """Generate every missing asset declared in plans/ASSETS-NEEDED.json."""
     workspace = workspace.resolve()

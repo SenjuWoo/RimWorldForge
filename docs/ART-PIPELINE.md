@@ -43,7 +43,11 @@ image model is available or when the user wants a 100% free, offline path.
 ```text
 rwforge assets-generate Workspaces/MyMod
 rwforge assets-generate Workspaces/MyMod --force --seed my-mod-v1
+rwforge assets-sheet Workspaces/MyMod
 ```
+
+`assets-sheet` writes `reports/assets-contact-sheet.png`, a labelled grid of every
+generated PNG. Use it for a fast whole-set review before opening individual files.
 
 Supported `kind` values:
 
