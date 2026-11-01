@@ -1,6 +1,6 @@
 {
   "version": "0.4.0",
-  "file_count": 52,
+  "file_count": 53,
   "files": [
     {
       "path": ".github/dependabot.yml",
@@ -38,9 +38,14 @@
       "sha256": "59f3adafd267a20b51abbe1a5ec8f51aaf771c72565bfc96553c5aca7c467f30"
     },
     {
+      "path": "assets/procedural-demo.png",
+      "bytes": 51906,
+      "sha256": "33d867c51f53866396a1138381ad3526198bb8408541eadb8066b89546249168"
+    },
+    {
       "path": "CHANGELOG.md",
-      "bytes": 4740,
-      "sha256": "2a38454590737f2eb269310bad8a084a87f8310aa1780363cafe646262a7f976"
+      "bytes": 4848,
+      "sha256": "c23d6f0a0dba6c21b633e9dbfffb925eaa7245e15654a73bb44ce3aabbee6f49"
     },
     {
       "path": "CODE_OF_CONDUCT.md",
@@ -54,8 +59,8 @@
     },
     {
       "path": "docs/AGENT-WORKFLOW.md",
-      "bytes": 3507,
-      "sha256": "552ed4f6adfd8d24f18c355ad0861f33fa90d560d65cd79c89cedc9c396aa429"
+      "bytes": 3594,
+      "sha256": "00cd757a9bde3edc447836b887a89cdfea26d39f9f4b1583ee5d37f84c46db07"
     },
     {
       "path": "docs/ARCHITECTURE.md",
@@ -64,8 +69,8 @@
     },
     {
       "path": "docs/ART-PIPELINE.md",
-      "bytes": 5144,
-      "sha256": "ae3263614b7d7db2aa88c23e0b927e2b6a2b64a4da9a55b0e9266fb094fc60f5"
+      "bytes": 5349,
+      "sha256": "ec96300bc58f93b8978813ea2e0418658165de0c6be0871a8fe3c5cb80ff748a"
     },
     {
       "path": "docs/CONTENT-RECIPES.md",
@@ -134,8 +139,8 @@
     },
     {
       "path": "README.md",
-      "bytes": 17172,
-      "sha256": "783c1ada014a0bf69b592f0abc7cb526b3165f10c0841514a7c0634a00d7bb2f"
+      "bytes": 17566,
+      "sha256": "0f8889dd4a769b59128fbeb856b67efc100f7e1d1ba735a685c25a1ec09bcbf8"
     },
     {
       "path": "schemas/project-plan.schema.json",
@@ -149,8 +154,8 @@
     },
     {
       "path": "skills/rimworld-forge/SKILL.md",
-      "bytes": 4558,
-      "sha256": "2e878a9225abe9e4169dff968c9f00b104523951b984a1fcaf7f466a37457395"
+      "bytes": 4591,
+      "sha256": "d3eddec5bd33bda4fd46c3bc0003f04654c0d8bc0d1236da87219a9fd0dcda43"
     },
     {
       "path": "src/rwforge/__init__.py",
@@ -159,8 +164,8 @@
     },
     {
       "path": "src/rwforge/artgen.py",
-      "bytes": 25899,
-      "sha256": "237ad6fdab419f8dfdcb45d21b63d6674fb73ff8455f02f591d24ba8e798ed72"
+      "bytes": 28077,
+      "sha256": "56ffb29a707d1b11a96fe0c1d36d1410093175bf6f515bd9c4febd4b550e148c"
     },
     {
       "path": "src/rwforge/assets.py",
@@ -179,8 +184,8 @@
     },
     {
       "path": "src/rwforge/cli.py",
-      "bytes": 11874,
-      "sha256": "f7e601946722c271f760339d49ac6aea723527d000b4c5e67f6b78ca9fab7b8a"
+      "bytes": 12470,
+      "sha256": "aefdaec4badc0d05850761fb3b0d4e0c424418877c2526c4377d01ff1063c9d0"
     },
     {
       "path": "src/rwforge/csharp.py",
@@ -249,8 +254,8 @@
     },
     {
       "path": "tests/test_rwforge.py",
-      "bytes": 28190,
-      "sha256": "190bdb677d0ebb7b140322a5a850118346429ba991d95abdb38b9db5289902c3"
+      "bytes": 28728,
+      "sha256": "d7b73072b45ecc74d50117a5df9656c9fc0c68b42c29cc63999dd878a849c2ff"
     },
     {
       "path": "Uninstall.ps1",

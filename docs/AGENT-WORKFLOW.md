@@ -53,10 +53,12 @@ If no paid image model is available, use the free local generator:
 
 ```text
 rwforge assets-generate <workspace>
+rwforge assets-sheet <workspace>
 ```
 
 It draws buildings, weapons, apparel, items, icons, directional pawns and
-previews with Pillow. Inspect the PNGs at 1:1; generation is not visual proof.
+previews with Pillow. `assets-sheet` combines them into one labelled image.
+Inspect the PNGs at 1:1; generation is not visual proof.
 
 After assets land, run validation again. Then test in-game at the actual draw scale.
 

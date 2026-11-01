@@ -53,6 +53,7 @@ When no paid image model is available, use the built-in local generator:
 ```text
 rwforge assets-generate <workspace>
 rwforge assets-generate <workspace> --force --seed my-mod-v1
+rwforge assets-sheet <workspace>
 ```
 
 It draws buildings, weapons, apparel, items, icons, directional pawns and 640x360 previews with Pillow. It is deterministic, offline and free. Inspect the PNG at 1:1 and in game; the generator proves presence and hashes, not visual correctness.

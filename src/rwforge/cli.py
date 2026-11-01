@@ -65,6 +65,7 @@ def capabilities() -> dict:
             "installed_mod_framework_scan": "implemented",
             "art_prompt_emission": "implemented",
             "procedural_asset_generation": "implemented_free_local",
+            "procedural_contact_sheet": "implemented",
             "demo_golden_path": "implemented",
             "typed_plan_generation": "implemented",
             "about_xml_generation": "implemented",
@@ -163,6 +164,10 @@ def parser() -> argparse.ArgumentParser:
     ag.add_argument("--force", action="store_true", help="Overwrite existing generated assets")
     ag.add_argument("--seed", help="Deterministic seed for palettes and shapes")
 
+    ash = sub.add_parser("assets-sheet", help="combine generated PNGs into one review sheet")
+    ash.add_argument("workspace")
+    ash.add_argument("--output")
+
     dm = sub.add_parser("demo")
     dm.add_argument("--output", required=True, help="New workspace directory for the demo")
 
@@ -237,6 +242,12 @@ def main(argv: list[str] | None = None) -> int:
             except ImportError as exc:
                 raise ValueError("Pillow is required for procedural art. Install with: pip install Pillow") from exc
             result = generate_assets(Path(args.workspace), force=args.force, seed=args.seed)
+        elif args.command == "assets-sheet":
+            try:
+                from .artgen import make_contact_sheet
+            except ImportError as exc:
+                raise ValueError("Pillow is required for procedural art. Install with: pip install Pillow") from exc
+            result = make_contact_sheet(Path(args.workspace), Path(args.output) if args.output else None)
         elif args.command == "demo":
             result = run_demo(Path(args.output))
         elif args.command == "log-analyze":
