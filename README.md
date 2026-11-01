@@ -15,7 +15,7 @@ schema every turn.
 <p>
   <a href="https://github.com/SenjuWoo/RimWorldForge/actions/workflows/ci.yml"><img src="https://github.com/SenjuWoo/RimWorldForge/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-e0a050?labelColor=1c1610" alt="MIT License"></a>
-  <a href="https://github.com/SenjuWoo/RimWorldForge/releases/tag/v0.3.0"><img src="https://img.shields.io/badge/release-v0.3.0-e0a050?labelColor=1c1610" alt="v0.3.0"></a>
+  <a href="https://github.com/SenjuWoo/RimWorldForge/releases/latest"><img src="https://img.shields.io/github/v/release/SenjuWoo/RimWorldForge?label=release&color=e0a050" alt="latest release"></a>
   <img src="https://img.shields.io/badge/RimWorld-1.6%2F1.7-c4a57a?labelColor=1c1610" alt="RimWorld 1.6/1.7">
   <img src="https://img.shields.io/badge/python-%3E%3D3.10-c4a57a?labelColor=1c1610" alt="Python 3.10+">
 </p>
