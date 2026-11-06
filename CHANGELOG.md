@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.4.1 - 2026-11-06
+
+Safety-only installer fix.
+
+- Hermes integration no longer deletes or replaces an existing profile `plugins`
+  directory. It never seeds skills from Skyrim/Roblox profiles and never rewrites
+  Hermes YAML by text substitution or borrows another Forge's config.
+- MCP and skill additions are additive: an existing registration or skill is
+  left untouched; a new registration is backed up and restored if the owner
+  client command fails. Claude MCP entries are no longer removed first.
+- Added `-DryRun` (no mutations) and `-NoAgentIntegration` (standalone install
+  without touching Hermes, Claude or Codex).
+- Added isolated safety regression coverage for unowned plugin files, Unicode
+  paths and destructive command patterns.
+
 ## 0.4.0 - 2026-11-01
 
 Free, local procedural art and a one-command demo.

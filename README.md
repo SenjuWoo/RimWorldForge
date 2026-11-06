@@ -4,7 +4,7 @@
 
 <div align="center">
 
-# RimWorldForge 0.4.0
+# RimWorldForge 0.4.1
 
 **Inspect the installed RimWorld 1.6/1.7 game before inventing XML.**
 
