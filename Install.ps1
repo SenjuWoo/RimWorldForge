@@ -38,7 +38,21 @@ if (-not $SkipTests) {
 $binDir = Join-Path $env:LOCALAPPDATA 'RimWorldForge\bin'
 New-Item -ItemType Directory -Force -Path $binDir | Out-Null
 $launcher = Join-Path $binDir 'rwforge.cmd'
-Set-Content -Path $launcher -Encoding ASCII -Value "@echo off`r`n`"$vpy`" -m rwforge.cli %*`r`n"
+# The launcher names this checkout's interpreter by full path. If the folder is
+# moved or deleted that path is gone, so the launcher says what happened and how
+# to repair it instead of printing "the system cannot find the path specified".
+$launcherLines = @(
+  '@echo off',
+  'setlocal EnableExtensions DisableDelayedExpansion',
+  ('if not exist "{0}" (' -f $vpy),
+  '  echo RimWorldForge is no longer at the folder this launcher was created for. 1>&2',
+  '  echo Run Install.ps1 from its current folder to repair the launcher. 1>&2',
+  '  exit /b 3',
+  ')',
+  ('"{0}" -m rwforge.cli %*' -f $vpy),
+  'exit /b %ERRORLEVEL%'
+)
+[IO.File]::WriteAllText($launcher, (($launcherLines -join "`r`n") + "`r`n"), (New-Object Text.UTF8Encoding($false)))
 $userPath = [Environment]::GetEnvironmentVariable('Path', 'User')
 if (-not $userPath) { $userPath = '' }
 if ($userPath -notlike "*$binDir*") {

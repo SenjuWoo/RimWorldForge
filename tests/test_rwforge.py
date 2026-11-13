@@ -516,5 +516,55 @@ class ProceduralArtTests(unittest.TestCase):
             self.assertEqual(second["skipped"], 4)
 
 
+class LauncherTests(unittest.TestCase):
+    """The installed `rwforge` launcher must explain a moved checkout."""
+
+    def launcher_lines(self):
+        import re
+
+        text = (ROOT / "Install.ps1").read_text(encoding="utf-8-sig")
+        block = re.search(r"\$launcherLines = @\((.*?)\n\)", text, re.S)
+        self.assertIsNotNone(block, "Install.ps1 no longer builds the launcher from $launcherLines")
+        return block.group(1)
+
+    def test_launcher_guards_a_missing_interpreter(self):
+        block = self.launcher_lines()
+        self.assertIn("if not exist", block)
+        self.assertIn("Install.ps1", block)
+        self.assertIn("exit /b 3", block)
+        self.assertIn("DisableDelayedExpansion", block)
+
+    @unittest.skipUnless(os.name == "nt", "cmd launcher")
+    def test_generated_launcher_runs_and_reports_a_moved_checkout(self):
+        import shutil
+        import subprocess
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as td:
+            home = Path(td).resolve() / "!rw tools (x)"
+            home.mkdir()
+            good = home / "rwforge.cmd"
+            lines = ["@echo off", "setlocal EnableExtensions DisableDelayedExpansion",
+                     'if not exist "{0}" ('.format(sys.executable),
+                     "  echo RimWorldForge is no longer at the folder this launcher was created for. 1>&2",
+                     "  echo Run Install.ps1 from its current folder to repair the launcher. 1>&2",
+                     "  exit /b 3", ")",
+                     '"{0}" -c "import sys; print(sys.argv[1:]); sys.exit(5)" %*'.format(sys.executable),
+                     "exit /b %ERRORLEVEL%"]
+            good.write_bytes(("\r\n".join(lines) + "\r\n").encode("utf-8"))
+            moved = home / "moved.cmd"
+            moved.write_bytes(good.read_bytes().replace(sys.executable.encode("utf-8"),
+                                                        str(home / "gone" / "python.exe").encode("utf-8")))
+            for switch in ("/v:off", "/v:on"):
+                line = subprocess.list2cmdline([str(good), "a b"])
+                ran = subprocess.run('cmd.exe /d {0} /s /c "{1}"'.format(switch, line), capture_output=True, text=True)
+                self.assertEqual(ran.returncode, 5, ran.stdout + ran.stderr)
+                self.assertIn("a b", ran.stdout)
+                line = subprocess.list2cmdline([str(moved)])
+                gone = subprocess.run('cmd.exe /d {0} /s /c "{1}"'.format(switch, line), capture_output=True, text=True)
+                self.assertEqual(gone.returncode, 3, gone.stdout + gone.stderr)
+                self.assertIn("Install.ps1", gone.stderr)
+
+
 if __name__ == "__main__":
     unittest.main()

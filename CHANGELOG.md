@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.2 - 2026-11-12
+
+Launcher repair after a move.
+
+- The `rwforge` launcher names the checkout's interpreter by full path, so moving or deleting the checkout left a launcher that only printed "The system cannot find the path specified". It now checks the path first, says the folder is gone, names the repair (`Install.ps1` from the current folder) and exits 3.
+- The launcher and `START-HERE.bat` pin delayed expansion off, so a folder whose name contains `!` is passed through intact.
+- Removed `BUILD-RECEIPT.json` and `CHECKSUMS-SHA256.txt` from the repository. Nothing generated or checked them, and the receipt still described 0.4.0. Release checksums are published with the release asset instead.
+
 ## 0.4.1 - 2026-11-06
 
 Safety-only installer fix.
