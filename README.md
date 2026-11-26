@@ -1,164 +1,41 @@
-<p align="center">
-  <img src="assets/mark.svg" width="72" height="72" alt="RimWorldForge mark">
-</p>
-
 <div align="center">
 
-# RimWorldForge 0.4.2
+![RimWorldForge: an amber hexagon mark with three bars, and the tagline 'Inspect the installed RimWorld 1.6/1.7 game before inventing XML, then build real mods.' with chips for Def index, typed plans, static checks, procedural art and 12 MCP tools](docs/presentation/hero.png)
 
-**Inspect the installed RimWorld 1.6/1.7 game before inventing XML.**
+[![CI](https://github.com/SenjuWoo/RimWorldForge/actions/workflows/ci.yml/badge.svg)](https://github.com/SenjuWoo/RimWorldForge/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/SenjuWoo/RimWorldForge?label=release&color=e0a050&labelColor=1c1610)](https://github.com/SenjuWoo/RimWorldForge/releases/latest)
+[![RimWorld](https://img.shields.io/badge/RimWorld-1.6%2F1.7-c4a57a?labelColor=1c1610)](docs/REFERENCE.md#design)
+[![Python](https://img.shields.io/badge/python-3.10%2B-c4a57a?labelColor=1c1610)](pyproject.toml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-e0a050?labelColor=1c1610)](LICENSE)
 
-A local-first AI modding workbench: deterministic Python tools plus a compact
-skill that teaches agents how to build real mods without loading a giant MCP
-schema every turn.
-
-<p>
-  <a href="https://github.com/SenjuWoo/RimWorldForge/actions/workflows/ci.yml"><img src="https://github.com/SenjuWoo/RimWorldForge/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-e0a050?labelColor=1c1610" alt="MIT License"></a>
-  <a href="https://github.com/SenjuWoo/RimWorldForge/releases/latest"><img src="https://img.shields.io/github/v/release/SenjuWoo/RimWorldForge?label=release&color=e0a050" alt="latest release"></a>
-  <img src="https://img.shields.io/badge/RimWorld-1.6%2F1.7-c4a57a?labelColor=1c1610" alt="RimWorld 1.6/1.7">
-  <img src="https://img.shields.io/badge/python-%3E%3D3.10-c4a57a?labelColor=1c1610" alt="Python 3.10+">
-</p>
-
-<p>
-  <a href="#install">Install</a>
-  ·
-  <a href="#the-forge-loop">Loop</a>
-  ·
-  <a href="#what-works-now">Status</a>
-  ·
-  <a href="CHANGELOG.md">Changelog</a>
-</p>
+**[Install](#install)** · **[Tour](#a-two-minute-tour)** · **[Commands](#commands)** · **[How it works](#how-it-works)** · **[Reference](docs/REFERENCE.md)** · **[Changelog](CHANGELOG.md)**
 
 </div>
 
-<p align="center">
-  <img src="assets/hero.svg" alt="RimWorldForge loop: index, plan, generate, validate, build" width="100%">
-</p>
+RimWorldForge is a local-first AI modding workbench for **RimWorld 1.6 and 1.7**,
+with free procedural art generation. It is built for agents that should create
+actual mods: inspect the installed game before inventing XML, validate what they
+wrote, package clean outputs, and report exactly what has and has not been
+proven. Deterministic Python tools do the work; a compact skill teaches the
+agent the workflow, so no giant MCP schema has to ride along every turn.
 
-A local-first AI modding workbench for **RimWorld 1.6 and 1.7**, with free procedural art generation. It is designed for agents that should create actual mods, inspect the game before inventing XML, validate what they wrote, package clean outputs, and report exactly what has and has not been proven.
+## What you get
 
-RimWorldForge is deliberately split into two layers:
+- **The game as the schema.** `index` reads Core and every installed DLC through Odyssey, plus your installed and Workshop mods (versioned `1.6/`, `1.7/`, `Common/` and `LoadFolders.xml` layouts included). `search`, `inspect` and `def-blueprint` let an agent copy a real Def instead of guessing tag names.
+- **Plans that mirror XML.** A typed JSON plan becomes `About.xml`, Def XML and `LoadFolders.xml`. Nested objects become nodes, lists become `<li>`, `@` keys carry attributes.
+- **Checks before the game starts.** Static About/Def/Patch validation, duplicate defNames, texture paths, and conservative cross-references against your real game index.
+- **Free art to start from.** `assets-generate` draws buildings, weapons, apparel, items, icons, directional pawns and 640x360 previews with Pillow: deterministic per seed, no network, no paid API.
+- **Clean builds with receipts.** A build folder, a ZIP, a SHA-256 file manifest and a receipt that records which evidence actually exists.
+- **Approval-gated steps.** C# compile (`dotnet build`) and staging into `RimWorld/Mods` (with ownership manifest, backup and rollback) only run with `--approve`.
+- **Log diagnosis.** `log-analyze` groups `Player.log` (and 1.7's `harmony.log.txt`) failures: duplicate-exception storms, de-mangled Harmony wrappers, failure phases, optional redaction.
 
-1. **Forge core**: deterministic Python tools for discovery, Def indexing, generation, validation, C# scaffolding, packaging, and log analysis.
-2. **Agent intelligence**: a compact skill and docs that teach an AI how to choose vanilla XML, Biotech genes/xenotypes, HAR races, Harmony/C#, and art workflows without loading a giant MCP schema every turn.
-
-The foundation targets RimWorld **1.6 and 1.7** and knows the current expansion layout through **Odyssey**. It never treats static XML parsing as proof that a mod works in-game.
-
-| | 1.6 | 1.7 |
-|---|---|---|
-| Runtime | .NET Framework 4.7.2 | .NET 10 (Waylith engine) |
-| Harmony | 2.4.3 | 3.x |
-| Logs | `LocalLow/.../Player.log` | `LocalLow/.../Logs/Player.log` + `harmony.log.txt` |
-| C# references | `Assembly-CSharp`, `UnityEngine`, `UnityEngine.CoreModule` | `Assembly-CSharp`, `UnityStubs`, `Waylith` |
-
-1.7 is still an unstable Steam branch as of October 2026; the 1.6 path remains the default for new projects.
-
-## What works now
-
-| Capability | State |
-|---|---|
-| Detect RimWorld + installed DLC | implemented |
-| Index Core/Royalty/Ideology/Biotech/Anomaly/Odyssey Defs | implemented |
-| Index installed mods incl. versioned layouts (`1.6/`, `1.7/`, `Common/`, `LoadFolders.xml` with `IfModActive`/`IfModActiveAll`) | implemented |
-| Search vanilla/DLC/installed-mod Defs by concept, label, type, or defName | implemented |
-| Clone an installed Def into an editable typed blueprint plan | implemented |
-| Scan local/Workshop mods and detect key frameworks (HAR, Harmony, VEF, VFEC, Big & Small, Giddy-Up, RJW, RimTalk, HugsLib, Vehicle Framework) | implemented |
-| Emit production image prompts from asset manifests | implemented |
-| Inspect source XML for an indexed Def | implemented |
-| Create isolated mod workspaces | implemented |
-| Generate `About.xml`, Def XML and `LoadFolders.xml` from typed JSON plans | implemented |
-| Generic nested XML fields, lists and XML attributes | implemented |
-| Static About/Def/Patch validation | implemented |
-| Duplicate defName and texture-path checks | implemented |
-| Conservative reference checks against a real game index (vanilla + installed mods) | implemented |
-| Clean build folder, ZIP, SHA-256 file manifest and receipt | implemented |
-| Analyze `Player.log` plus 1.7's `harmony.log.txt`: duplicate-exception storms, Harmony wrapper de-mangling, failure phases, optional PII redaction | implemented |
-| C# project scaffold against the installed game: 1.6 `net472` or 1.7 `net10.0` with `Waylith`/`UnityStubs` | implemented |
-| C# compile through `dotnet build` | implemented, explicit approval required |
-| Stage a built mod into `RimWorld/Mods` with SHA-256 ownership manifest, backup and rollback | implemented, explicit approval required |
-| Autonomous game launch / spawn test | not implemented yet |
-| Visual correctness test | human or vision step |
-| Free local procedural art | buildings, items, apparel, directional pawns, icons and previews; deterministic Pillow generator, no network or paid API |
-| One-command demo / golden path | implemented, pipeline proof only |
-| Steam Workshop publication | not implemented yet |
-
-Run `rwforge capabilities` for the machine-readable matrix.
-
-## The Forge loop
-
-```text
-idea
-  |
-  v
-search real vanilla/DLC examples
-  |
-  v
-write a typed plan
-  |
-  v
-plan-validate -> generate -> validate
-  |                         |
-  |                         +-- syntax / duplicate / texture / reference checks
-  v
-optional C# scaffold + compile
-  |
-  v
-build -> clean folder + zip + SHA-256 receipt
-  |
-  v
-stage manually-approved copy into RimWorld/Mods
-  |
-  v
-launch RimWorld yourself -> Player.log
-  |
-  v
-log-analyze -> repair -> repeat
-```
-
-## Golden path
-
-One command creates a small demo mod, draws its textures and preview locally, validates it, and builds a ZIP:
-
-```text
-rwforge demo --output Workspaces/Demo
-```
-
-It is a pipeline proof, not a balance-tested or load-tested mod. Open the PNGs and load the result in RimWorld before calling it working.
-
-The first design rule is **inspect before inventing**. RimWorld's Defs map directly onto C# `Def` classes and vanilla Defs are the best practical schema examples. A weak model becomes dramatically more reliable when it can search the installed game instead of guessing tag names from memory.
+![Terminal: rwforge 0.4.2 runs demo, which generates 7 textures (workbench, tool, four pawn directions, preview), validates with no errors or warnings and builds Forge-Demo.zip, noting it is a pipeline proof only](docs/presentation/screenshot-demo.png)
 
 ## Install
 
-Requirements: Windows 10/11, macOS, or Linux; Python 3.10+; Pillow is installed with the package; RimWorld 1.6 or 1.7 for game-aware operations.
+**Windows:** clone or download the [latest release](https://github.com/SenjuWoo/RimWorldForge/releases/latest) and double-click `START-HERE.bat` (or run `.\Install.ps1`). It creates `.venv`, installs the package, runs the self-tests, puts an `rwforge` launcher on your user PATH, and adds the MCP server and skill to Hermes (its own `rimworld` profile), Claude Code and Codex when it finds them. Integration is additive and never touches RimWorld files, mod lists or saves. `-DryRun` shows what it would do; `-NoAgentIntegration` installs standalone.
 
-### One click (Windows)
-
-Double-click:
-
-```text
-START-HERE.bat
-```
-
-or run:
-
-```powershell
-.\Install.ps1
-```
-
-The installer creates `.venv`, installs RimWorldForge, runs its self-tests, and then wires
-up every agent CLI it finds on the machine:
-
-| Agent | What it does |
-|---|---|
-| **Hermes** | Creates a dedicated `rimworld` profile (`hermes -p rimworld` / `rimworld` wrapper) with the rimworldforge MCP server enabled **only in that profile** and the skill installed — zero token cost in other profiles. The installer also mirrors the MCP servers already enabled in your **default** Hermes profile into it, so the RimWorld profile keeps your usual tools (github, context7, …) alongside the forge |
-| **Claude Code** | Registers the MCP at user scope (`claude mcp add --scope user`) and installs the skill |
-| **Codex CLI** | Copies the skill to `~/.codex/skills` (Codex has no project-scoped MCP config; point it at the server command manually if wanted) |
-
-Nothing is registered globally that wasn't already there, no RimWorld files, mod lists or
-saves are touched, and `Uninstall.ps1` reverses all of it.
-
-### Manual
+**Any OS with Python 3.10+:**
 
 ```bash
 python -m venv .venv
@@ -169,257 +46,94 @@ rwforge doctor
 rwforge capabilities
 ```
 
-If automatic discovery misses your install:
+If discovery misses your game, set `RIMWORLD_ROOT`. Every switch, environment variable and what `Uninstall.ps1` removes: [docs/INSTALL.md](docs/INSTALL.md).
 
-```powershell
-$env:RIMWORLD_ROOT = 'D:\SteamLibrary\steamapps\common\RimWorld'
-rwforge doctor
-```
-
-### Environment variables (all optional)
-
-| Variable | Purpose |
-|---|---|
-| `RIMWORLD_ROOT` | RimWorld install root, if registry/Steam discovery fails |
-| `RIMWORLD_WORKSHOP_ROOT` | Extra Steam Workshop content root(s) to scan for mods (`os.pathsep`-separated for several). Each may be either the `steamapps/workshop/content/294100` folder itself or its parent `steamapps/workshop` folder |
-| `RIMWORLD_MODS_ROOT` | Additional mods directory beyond the game's own `Mods` folder |
-| `RIMWORLD_FORGE_HOME` | Where the index is stored (defaults to the platform data directory) |
-
-`rwforge index` auto-discovers mods from the game's `Mods` folder plus **every Steam
-library's** Workshop content root found via `libraryfolders.vdf` — multi-drive Steam
-setups need no configuration. Pass `--mods-root` explicitly to replace auto-discovery.
-
-## First real workflow
-
-### 1. Index the installed game
+## A two-minute tour
 
 ```text
-rwforge index
-rwforge search mechanoid --type ThingDef
+rwforge demo --output Workspaces/Demo                  # golden path: plan, art, validate, zip
+rwforge index                                          # once per game/mod update
+rwforge search mechanoid --type ThingDef               # real examples before writing XML
 rwforge inspect Centipede
 rwforge def-blueprint Centipede MyHeavyMech --output plans/my-heavy-mech.json --package-id author.mymech --mod-name "My Heavy Mech"
-rwforge mods-scan
-```
-
-The index is written under `%LOCALAPPDATA%\RimWorldForge\indexes` on Windows or the platform data directory elsewhere.
-
-### 2. Create a workspace
-
-```text
 rwforge project-new "Warden Mech" --package-id yourname.wardenmech --workspace Workspaces/WardenMech
+rwforge plan-validate Workspaces/WardenMech/plans/warden.plan.json
+rwforge generate Workspaces/WardenMech Workspaces/WardenMech/plans/warden.plan.json
+rwforge assets-generate Workspaces/WardenMech
+rwforge validate Workspaces/WardenMech
+rwforge build Workspaces/WardenMech
+rwforge log-analyze                                    # after you launch RimWorld yourself
 ```
 
-The live game is not touched. The workspace contains:
+`demo` creates a small demo mod, draws its textures and preview locally, validates it, and builds a ZIP in one command. It is a pipeline proof, not a balance-tested or load-tested mod. Open the PNGs and load the result in RimWorld before calling it working. The bundled `examples/warden-mech.plan.json` is a **teaching plan**: inspect your installed mech Defs and adapt it before shipping.
 
-```text
-WardenMech/
-  forge.json
-  plans/
-  reports/
-  csharp/
-  source/
-    About/About.xml
-    Defs/
-    Patches/
-    Textures/
-    Assemblies/
-    Languages/English/
-  build/
-```
+![Terminal: the bundled Warden plan passes plan-validate with 2 defs, generate writes Warden_Things.xml and Warden_PawnKinds.xml with 4 assets declared, assets-generate draws 4 images, validate reports syntax_valid true and references_valid, load_tested, runtime_tested and visual_tested false, and build writes Warden-Mech.zip](docs/presentation/screenshot-plan-build.png)
 
-### 3. Start from the bundled example
-
-```text
-copy examples\warden-mech.plan.json Workspaces\WardenMech\plans\warden.plan.json
-rwforge plan-validate Workspaces\WardenMech\plans\warden.plan.json
-rwforge generate Workspaces\WardenMech Workspaces\WardenMech\plans\warden.plan.json
-rwforge validate Workspaces\WardenMech
-rwforge build Workspaces\WardenMech
-```
-
-The example is intentionally a **teaching plan**, not a claim that one generic XML block is a complete balanced Biotech mech. Before shipping it, inspect current installed 1.6/1.7 mech Defs and adapt fields to the exact parent/classes your game exposes.
-
-### 4. Test and diagnose
-
-After you manually enable the staged/built mod in RimWorld and launch the game:
-
-```text
-rwforge log-analyze
-```
-
-It groups common failures including unresolved cross-references, XML errors, missing assemblies, Harmony failures, texture errors and exceptions.
-
-## Typed plan format
-
-The plan deliberately mirrors RimWorld XML rather than hiding it behind a huge opinionated DSL.
-
-```json
-{
-  "schema": 1,
-  "mod": {
-    "name": "Example Mod",
-    "packageId": "author.example",
-    "author": "Author",
-    "supportedVersions": ["1.6"],
-    "description": "Example generated mod"
-  },
-  "defs": [
-    {
-      "type": "ThingDef",
-      "attributes": {"ParentName": "BaseThing"},
-      "fields": {
-        "defName": "Author_ExampleThing",
-        "label": "example thing",
-        "description": "A generated example.",
-        "statBases": {
-          "MaxHitPoints": 250,
-          "MarketValue": 100
-        }
-      }
-    }
-  ],
-  "assets": []
-}
-```
-
-Nested objects become nested XML nodes. Lists become `<li>` lists. Prefix dictionary keys with `@` when an XML child needs attributes, or use an explicit `_tag` for a non-`li` list item. This keeps the plan expressive enough for normal RimWorld Defs without teaching Forge every future `Def` subclass.
-
-See `schemas/project-plan.schema.json`, `docs/MODDING-GUIDE.md`, and `docs/CONTENT-RECIPES.md`.
-
-## Races and NPCs
-
-RimWorldForge's intended routing is:
-
-- **Vanilla humanlike content**: `PawnKindDef`, factions, backstories, apparel, traits, etc.
-- **Biotech**: `GeneDef` + `XenotypeDef` when the concept can be expressed through genes.
-- **Humanoid Alien Races**: XML-driven custom race bodies/graphics/restrictions when HAR is the right dependency.
-- **C# / Harmony**: only when the behavior cannot be represented cleanly with Defs or an established framework.
-
-HAR currently declares RimWorld 1.6 support and remains a natural route for full custom humanoid races. RimWorldForge does not vendor HAR or Harmony.
-
-## Art pipeline
-
-RimWorld mod art is not "generate one pretty picture and call it done." Pawn, apparel, weapon, building, UI and preview assets each have different framing and directional requirements.
-
-Plans can declare assets:
-
-```json
-{
-  "id": "warden_body",
-  "kind": "pawn_directional",
-  "target": "Textures/Shugoki/Warden/Warden_south.png",
-  "transparent": true,
-  "style": "RimWorld-compatible top-down pawn sprite",
-  "directions": ["south", "north", "east"],
-  "notes": "west may be mirrored only if the design is symmetric"
-}
-```
-
-`ASSETS-NEEDED.json` is generated into the workspace. `rwforge art-prompts <workspace>` turns every asset brief into a production prompt file for an external image generator.
-
-Forge also ships a **free, local procedural generator** for a usable starting asset:
-
-```text
-rwforge assets-generate Workspaces/MyMod
-rwforge assets-generate Workspaces/MyMod --force --seed my-mod-v1
-rwforge assets-sheet Workspaces/MyMod
-```
-
-It reads the same manifest and draws buildings, weapons, apparel, items, icons, directional pawns and 640x360 previews with Pillow. It is deterministic per seed, needs no network, and writes `reports/assets-generated.json` with SHA-256 hashes. `assets-sheet` combines every output into one labelled image for fast review. Generated art is a starting point: inspect the PNGs at 1:1 and in game before calling it visually tested.
+The procedural generator's output, combined by `assets-sheet` into one review image:
 
 <p align="center">
-  <img src="assets/procedural-demo.png" alt="Contact sheet of procedurally generated RimWorld assets" width="720">
+  <img src="assets/procedural-demo.png" alt="Contact sheet of procedurally generated RimWorld assets: a workbench, a tool, a pawn in four directions and a 16:9 mod preview" width="720">
 </p>
 
-<p align="center"><sub>Generated by <code>rwforge demo</code> and <code>rwforge assets-sheet</code>. No image API, no network.</sub></p>
+## Commands
 
-The bundled `examples/art/warden-concept.svg` is **concept/reference art only**, not a game-ready pawn texture. `docs/ART-PIPELINE.md` explains the contract.
+| Need | Command |
+|---|---|
+| Health check, machine-readable capability matrix | `rwforge doctor` · `rwforge capabilities` |
+| Index the game, DLC and installed/Workshop mods | `rwforge index [--mods-root DIR]` |
+| Find and read real Defs | `rwforge search <term> [--type ThingDef]` · `inspect <defName>` |
+| Clone a Def into an editable plan | `rwforge def-blueprint <def> <newDef> --output plan.json` |
+| Which frameworks are installed (HAR, Harmony, VEF, RJW, HugsLib, ...) | `rwforge mods-scan` |
+| New isolated workspace | `rwforge project-new <name> --package-id <id> [--rimworld-version 1.6\|1.7]` |
+| Plan to XML, then check | `rwforge plan-validate <plan>` · `generate <ws> <plan>` · `validate <ws>` |
+| Art | `rwforge assets-generate <ws> [--seed S]` · `assets-sheet <ws>` · `art-prompts <ws>` |
+| Package | `rwforge build <ws>` |
+| C# against the installed game | `rwforge csharp-scaffold <ws> [--version 1.6\|1.7]` · `csharp-build <ws> --approve` |
+| Test install into `RimWorld/Mods` | `rwforge stage <ws> --approve` · `stage-rollback <ws>` |
+| Diagnose a run | `rwforge log-analyze [log] [--redact]` |
+| One-command pipeline proof | `rwforge demo --output <dir>` |
 
-<p align="center">
-  <img src="examples/art/warden-concept.svg" alt="Warden concept reference art shipped with RimWorldForge" width="560">
-</p>
+The MCP server (`mcp_server/server.py`, stdio, no SDK) exposes 12 broad tools; expert helpers stay CLI/skill operations so they cost no context per turn. Full capability matrix, plan format, content routing (vanilla, Biotech, HAR, C#/Harmony), art pipeline and MCP list: [docs/REFERENCE.md](docs/REFERENCE.md).
 
-<p align="center"><sub>Concept / reference only. Not a game-ready directional pawn texture.</sub></p>
+## How it works
 
-## C# escalation
-
-```text
-rwforge csharp-scaffold Workspaces/MyMod
-rwforge csharp-build Workspaces/MyMod --approve
+```mermaid
+flowchart TD
+  GAME["Your RimWorld install + mods (read-only)"] -->|index| IDX[("Def index")]
+  IDX --> SEARCH["search · inspect · def-blueprint"]
+  SEARCH --> PLAN["typed JSON plan"]
+  PLAN --> GEN["plan-validate → generate"]
+  GEN --> ART["assets-generate (Pillow)"]
+  ART --> VAL["validate: syntax, duplicates, textures, references"]
+  IDX --> VAL
+  VAL --> BUILD["build: folder + ZIP + SHA-256 receipt"]
+  BUILD -->|"stage --approve"| MODS["RimWorld/Mods"]
+  MODS -->|"you launch the game"| LOG["Player.log → log-analyze"]
+  LOG --> PLAN
 ```
 
-The scaffold targets the detected game version, or an explicit `--version 1.6|1.7`. A 1.6 project references the Unity assemblies and targets `net472`; a 1.7 project references `Assembly-CSharp`, `UnityStubs` and `Waylith` and targets `net10.0`. Compiling both from one machine would need both reference sets installed, so Forge does not pretend to cross-compile. External compilation is approval-gated because it launches a compiler. Harmony is optional and must be supplied explicitly with `--harmony-dll` if a project needs it.
+Evidence stays in separate tiers and is never collapsed into one green check:
+`syntax_valid`, `references_valid`, `compiled`, `load_tested`, `runtime_tested`,
+`visual_tested`. Load and runtime testing are not automated yet, so the forge
+reports them as false until you test in game. See [docs/VALIDATION.md](docs/VALIDATION.md).
 
-## MCP
+More: [ARCHITECTURE](docs/ARCHITECTURE.md) · [AGENT-WORKFLOW](docs/AGENT-WORKFLOW.md) · [MODDING-GUIDE](docs/MODDING-GUIDE.md) · [CONTENT-RECIPES](docs/CONTENT-RECIPES.md) · [ART-PIPELINE](docs/ART-PIPELINE.md) · [EXTENDING](docs/EXTENDING.md) · [RUNTIME-HARNESS-DESIGN](docs/RUNTIME-HARNESS-DESIGN.md).
 
-The MCP façade intentionally stays at 12 broad tools. Expert helpers such as Def blueprints, mod/framework scans, C# compilation, the demo and art-prompt emission remain CLI/skill operations so they do not inflate every MCP turn:
+## Tested
 
-```text
-rw_doctor
-rw_capabilities
-rw_index
-rw_def_search
-rw_def_inspect
-rw_project_new
-rw_plan_validate
-rw_generate
-rw_validate
-rw_build
-rw_log_analyze
-rw_assets_generate
+```bash
+python tests/run_tests.py
 ```
 
-Start it with:
+34 offline tests run on every push: indexing (versioned mod layouts, `LoadFolders.xml` conditions, Workshop discovery), plan generation, validation, builds, log analysis and redaction, C# scaffolds for both versions, staging with backup and rollback, procedural art and the demo. They use synthetic game trees. The screenshots above are real runs of the installed CLI; no RimWorld install was available for them, so `index`, `search` and `inspect` against a live game are not pictured.
 
-```text
-.venv\Scripts\python.exe mcp_server\server.py
-```
+## Roadmap
 
-It uses a tiny stdio JSON-RPC implementation and no external MCP SDK. Keep it disabled outside RimWorld work to preserve prompt context. The companion skill carries the workflow intelligence so the MCP does not need dozens of micro-tools.
-
-## Evidence tiers
-
-RimWorldForge never collapses these into one fake green check:
-
-1. `syntax_valid`: Forge could parse and structurally inspect the files.
-2. `references_valid`: conservative references were checked against a real installed-game index.
-3. `compiled`: C# compiler accepted the project and a DLL was produced.
-4. `load_tested`: RimWorld loaded the mod without relevant startup errors. Not automated yet.
-5. `runtime_tested`: spawned/used content actually behaved correctly. Not automated yet.
-6. `visual_tested`: textures, draw sizes, offsets, directional art and UI look correct.
-
-A build receipt records the evidence that actually exists.
-
-## Current source of truth
-
-The foundation was grounded against current references in October 2026:
-
-- RimWorld Wiki: Mod Folder Structure, About.xml, XML Defs, XML file structure
-- RimWorld Wiki: RimWorld 1.7 Mod Updates (net10.0, Harmony 3, new `Logs/` folder)
-- Ludeon Studios: RimWorld 1.6 and the Waylith/1.7 announcement
-- Ludeon: Modder Primer for 1.7 (`Assembly-CSharp`, `UnityStubs`, `Waylith`, `RimWorld` host)
-- Humanoid Alien Races repository: current support declaration and XML-focused feature set
-
-See `knowledge/SOURCES.md` for the URLs and what each source is allowed to prove.
-
-## Roadmap to 1.0
-
-The next high-value work is deliberately runtime-heavy rather than adding 80 more generator templates:
-
-- controlled temporary ModsConfig generation
-- launch-and-watch test profile
-- parse only errors attributable to the generated packageId
-- developer-mode spawn/instantiate test harness
-- screenshot capture + vision inspection for art offsets and clipping
-- stronger reflection-backed C# field/schema extraction
-- HAR helper plans and Biotech xenotype helpers built from installed examples
-- Steam Workshop packaging/publishing as a separate trust gate
-- benchmark: weak local model, same mod prompt, baseline vs Forge
-
-The foundation is useful now, but 1.0 should mean **proved behavioral improvement and a full automated load-test loop**, not a larger README.
+1.0 should mean proved behavioral improvement and a full automated load-test loop:
+temporary ModsConfig profiles, launch-and-watch, a developer-mode spawn harness,
+screenshot plus vision checks for art, and Workshop publishing as its own trust
+gate. The full list is in [docs/REFERENCE.md](docs/REFERENCE.md#roadmap-to-10).
 
 ## License
 
-[MIT](LICENSE)
-
-RimWorld is a trademark of Ludeon Studios. This project is unofficial.
+[MIT](LICENSE). RimWorld is a trademark of Ludeon Studios. This project is unofficial.

@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased - 2026-11-25
+
+Documentation only; no code changes.
+
+- README rebuilt around a cover image and real terminal screenshots (`rwforge demo`, and the bundled Warden plan through validate, generate, assets-generate, validate and build). The deep reference moved to `docs/REFERENCE.md` (capability matrix, workflow, plan format, content routing, art, C#, MCP, evidence tiers, sources, roadmap) and `docs/INSTALL.md`.
+- Corrected install claims: the installer no longer mirrors MCP servers from the default Hermes profile (removed in 0.4.1), and `Uninstall.ps1` leaves the Hermes `rimworld` profile and its MCP entry in place. Documented `-DryRun`, `-NoAgentIntegration`, `-SkipTests`, `-KeepMcp`, `RIMWORLD_FORGE_OFFLINE`, `RWFORGE_DEBUG`, `stage` and `stage-rollback`.
+
 ## 0.4.2 - 2026-11-12
 
 Launcher repair after a move.
